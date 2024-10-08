@@ -4,6 +4,7 @@ enum class PipelinesEnum
 {
 	regular,
 	linesOnly,
+	opacity,
 
 	numValues
 };

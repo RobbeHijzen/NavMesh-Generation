@@ -101,6 +101,7 @@ private:
 		m_GraphicsPipelines.resize(static_cast<int>(PipelinesEnum::numValues));
 		CreateGraphicsPipeline((int)PipelinesEnum::regular, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE);
 		CreateGraphicsPipeline((int)PipelinesEnum::linesOnly, VK_POLYGON_MODE_LINE, VK_CULL_MODE_NONE);
+		CreateGraphicsPipeline((int)PipelinesEnum::opacity, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE, true);
 		m_Shader3D->DestroyShaderStages(m_Device);
 		
 		// Command Buffers setup
@@ -357,7 +358,7 @@ private:
 	VkPipelineLayout m_PipelineLayout{};
 	VkRenderPass m_RenderPass{};
 
-	void CreateGraphicsPipeline(int pipelineIndex, VkPolygonMode polygonMode, VkCullModeFlags cullMode);
+	void CreateGraphicsPipeline(int pipelineIndex, VkPolygonMode polygonMode, VkCullModeFlags cullMode, bool useAlphaBlending = false);
 	void CreateDescriptorSetLayouts();
 	void CreateRenderPass();
 

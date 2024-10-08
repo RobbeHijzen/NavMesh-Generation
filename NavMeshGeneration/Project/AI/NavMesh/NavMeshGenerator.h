@@ -12,7 +12,7 @@ public:
 private:
 
 	AABB m_Boundaries{ {-1000.f, -1000.f, -1000.f}, {1000.f, 1000.f, 1000.f} };
-	int m_VoxelsAmount{5000}; // Amount of voxels for every axis (x and z)
+	int m_VoxelsAmount{500}; // Amount of voxels for every axis (x and z)
 
 	std::vector<Voxel> m_HeightMap{};
 	Scene* m_Scene{};
@@ -38,7 +38,7 @@ private:
 
 	virtual void Render(VkCommandBuffer buffer) const override { vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0); }
 
-	virtual PipelinesEnum GetPipelineID() const override { return PipelinesEnum::regular; }
+	virtual PipelinesEnum GetPipelineID() const override { return PipelinesEnum::opacity; }
 	virtual std::string GetDiffuseString() const override { return "Resources/texs/NavMesh.png"; }
 
 };

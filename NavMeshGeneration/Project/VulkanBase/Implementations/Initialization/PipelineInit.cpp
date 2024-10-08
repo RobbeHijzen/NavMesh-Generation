@@ -1,6 +1,6 @@
 #include "VulkanBase/VulkanBase.h"
 
-void VulkanBase::CreateGraphicsPipeline(int pipelineIndex, VkPolygonMode polygonMode, VkCullModeFlags cullMode)
+void VulkanBase::CreateGraphicsPipeline(int pipelineIndex, VkPolygonMode polygonMode, VkCullModeFlags cullMode, bool useAlphaBlending)
 {
 	// ViewportState
 	VkPipelineViewportStateCreateInfo viewportState{};
@@ -38,7 +38,23 @@ void VulkanBase::CreateGraphicsPipeline(int pipelineIndex, VkPolygonMode polygon
 	// ColorBlendState
 	VkPipelineColorBlendAttachmentState colorBlendAttachment{};
 	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-	colorBlendAttachment.blendEnable = VK_FALSE;
+	
+	if (useAlphaBlending)
+	{
+		colorBlendAttachment.blendEnable = VK_TRUE;
+
+		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+	}
+	else
+	{
+		colorBlendAttachment.blendEnable = VK_FALSE;
+	}
+
 
 	VkPipelineColorBlendStateCreateInfo colorBlending{};
 	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;

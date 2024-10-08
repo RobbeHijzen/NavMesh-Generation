@@ -10,7 +10,7 @@ void VulkanBase::LoadScene()
 
 	// Vehicle
 	auto vehicle{ new Mesh("Resources/objs/vehicle.obj", "Resources/texs/vehicle_diffuse.png", { -200, 82.f, 0 }, { 0, -90, 0 }) };
-	vehicle->AddComponent(std::make_shared<CollisionComponent>(vehicle, true, 1));
+	vehicle->AddComponent(std::make_shared<CollisionComponent>(vehicle, true, 3));
 	m_Scene->AddObject(vehicle);
 
 	// Manny
