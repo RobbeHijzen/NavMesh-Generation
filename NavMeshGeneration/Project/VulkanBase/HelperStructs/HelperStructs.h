@@ -38,4 +38,6 @@ struct AABB
 	{
 		return min == other.min && max == other.max;
 	}
+
+	
 };

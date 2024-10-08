@@ -6,8 +6,7 @@
 
 class IRenderable
 {
-public:
-	virtual const std::vector<Vertex>& GetVertices() const = 0 ;
+public:virtual const std::vector<Vertex>& GetVertices() const = 0 ;
 	virtual const std::vector<uint32_t>& GetIndices() const = 0 ;
 
 	virtual uint32_t GetRenderID() const = 0;
@@ -18,6 +17,7 @@ public:
 	virtual PipelinesEnum GetPipelineID() const = 0;
 	virtual std::string GetDiffuseString() const = 0;
 
+	
 	virtual bool IsHidden() const { return false; }
 	virtual bool IsInstanceable() const { return false; }
 

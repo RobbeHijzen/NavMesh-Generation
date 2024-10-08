@@ -99,7 +99,7 @@ private:
 		CreateDescriptorSetLayouts();
 
 		m_GraphicsPipelines.resize(static_cast<int>(PipelinesEnum::numValues));
-		CreateGraphicsPipeline((int)PipelinesEnum::regular, VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT);
+		CreateGraphicsPipeline((int)PipelinesEnum::regular, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE);
 		CreateGraphicsPipeline((int)PipelinesEnum::linesOnly, VK_POLYGON_MODE_LINE, VK_CULL_MODE_NONE);
 		m_Shader3D->DestroyShaderStages(m_Device);
 		

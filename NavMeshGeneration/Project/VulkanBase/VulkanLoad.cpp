@@ -1,4 +1,5 @@
 #include "vulkanbase/VulkanBase.h"
+#include "AI/NavMesh/NavMeshGenerator.h"
 
 void VulkanBase::LoadScene()
 {
@@ -9,7 +10,7 @@ void VulkanBase::LoadScene()
 
 	// Vehicle
 	auto vehicle{ new Mesh("Resources/objs/vehicle.obj", "Resources/texs/vehicle_diffuse.png", { -200, 82.f, 0 }, { 0, -90, 0 }) };
-	vehicle->AddComponent(std::make_shared<CollisionComponent>(vehicle, true, 4));
+	vehicle->AddComponent(std::make_shared<CollisionComponent>(vehicle, true, 1));
 	m_Scene->AddObject(vehicle);
 
 	// Manny
@@ -20,6 +21,10 @@ void VulkanBase::LoadScene()
 	manny->AddComponent(std::make_shared<CameraComponent>(manny, m_Camera.get()));
 	
 	m_Scene->AddObject(manny);
+
+	// NavMesh
+	auto navMeshGenerator{ new NavMeshGenerator(m_Scene)};
+	m_Scene->AddObject(navMeshGenerator);
 }
 
 void VulkanBase::HandleToggleKeyboardPresses(GLFWwindow* window)
