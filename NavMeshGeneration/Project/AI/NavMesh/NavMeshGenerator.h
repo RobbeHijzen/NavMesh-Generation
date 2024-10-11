@@ -12,13 +12,15 @@ public:
 private:
 
 	AABB m_Boundaries{ {-1000.f, -1000.f, -1000.f}, {1000.f, 1000.f, 1000.f} };
-	int m_VoxelsAmount{500}; // Amount of voxels for every axis (x and z)
+	int m_VoxelsAmountX{1};
+	int m_VoxelsAmountY{1};
+	int m_VoxelsAmountZ{1};
 
-	std::vector<Voxel> m_HeightMap{};
+	std::vector<std::vector<std::vector<Voxel>>> m_Voxels{};
 	Scene* m_Scene{};
 
-	void InitializeHeightMap();
-	void FillHeightMap();
+	void InitializeVoxels();
+	void CheckForVoxelCollisions();
 	void FillVerticesAndIndices();
 
 	// Members for rendering
