@@ -11,6 +11,8 @@ std::vector<Node> NavMeshGenerator::GenerateNavMesh()
 {
 	InitializeVoxels();
 	CheckForVoxelCollisions();
+	FillHeightMap();
+
 	FillVerticesAndIndices();
 
 	return std::vector<Node>();
@@ -98,6 +100,10 @@ void NavMeshGenerator::CheckForVoxelCollisions()
 		}
 
 	}
+}
+
+void NavMeshGenerator::FillHeightMap()
+{
 }
 
 void NavMeshGenerator::FillVerticesAndIndices()

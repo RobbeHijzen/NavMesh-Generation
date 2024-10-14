@@ -15,3 +15,9 @@ struct Node
 {
 
 };
+
+struct HeightMapPixel
+{
+
+
+};
