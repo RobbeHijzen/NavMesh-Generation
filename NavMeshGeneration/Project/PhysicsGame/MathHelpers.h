@@ -11,3 +11,13 @@ static glm::vec3 RotateVectorY(glm::vec3 vec, float angle)
 
 	return finalVec;
 }
+
+static glm::vec3 RotateVectorX(glm::vec3 vec, float angle)
+{
+	glm::vec3 finalVec{};
+	finalVec.x = vec.x;
+	finalVec.y = vec.y * cosf(angle) - vec.z * sinf(angle);
+	finalVec.z = vec.y * sinf(angle) + vec.z * cosf(angle);
+
+	return finalVec;
+}

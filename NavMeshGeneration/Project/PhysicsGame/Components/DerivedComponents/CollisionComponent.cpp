@@ -26,10 +26,10 @@ void CollisionComponent::GameStart()
     UpdateModelMatrix();
 }
 
-void CollisionComponent::Render(VkCommandBuffer buffer) const
-{
-    vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0);
-}
+//void CollisionComponent::Render(VkCommandBuffer buffer) const
+//{
+//    vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0);
+//}
 
 void CollisionComponent::UpdateModelMatrix()
 {    

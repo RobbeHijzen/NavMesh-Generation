@@ -56,11 +56,11 @@ set(SOURCES
     "VulkanBase/HelperStructs/BaseComponent.h" 
     "PhysicsGame/Components/DerivedComponents/MovementComponent.cpp" 
     "PhysicsGame/Components/DerivedComponents/CollisionComponent.cpp" 
-    "PhysicsGame/Components/DerivedComponents/CameraComponent.cpp" 
+     
     "Vulkanbase/EventSystem/Events.h" 
     "Vulkanbase/EventSystem/Observer.h" 
     "PhysicsGame/MathHelpers.h" 
-    "vulkanbase/VulkanLoad.cpp" "Vulkanbase/Time/Time.h" "Vulkanbase/Time/Time.cpp" "PhysicsGame/Collision/AABBCalculator.h" "PhysicsGame/Collision/AABBCalculator.cpp" "VulkanBase/HelperStructs/PipelinesEnum.h" "VulkanBase/HelperStructs/IRenderable.h" "VulkanBase/Scene/Object.h"   "AI/NavMesh/NavMesh.h" "AI/NavMesh/NavMesh.cpp" "AI/NavMesh/NavMeshGenerator.cpp" "AI/NavMesh/NavMeshGenerator.h" "AI/NavMesh/NavMeshStructs.h")
+    "vulkanbase/VulkanLoad.cpp" "Vulkanbase/Time/Time.h" "Vulkanbase/Time/Time.cpp" "PhysicsGame/Collision/AABBCalculator.h" "PhysicsGame/Collision/AABBCalculator.cpp" "VulkanBase/HelperStructs/PipelinesEnum.h" "VulkanBase/HelperStructs/IRenderable.h" "VulkanBase/Scene/Object.h"   "AI/NavMesh/NavMesh.h" "AI/NavMesh/NavMesh.cpp" "AI/NavMesh/NavMeshGenerator.cpp" "AI/NavMesh/NavMeshGenerator.h" "AI/NavMesh/NavMeshStructs.h"  )
     
 
 # Copies the Resources folder into out

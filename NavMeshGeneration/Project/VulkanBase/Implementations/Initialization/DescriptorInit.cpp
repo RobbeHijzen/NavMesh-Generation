@@ -57,17 +57,19 @@ void VulkanBase::CreateUnfiformBuffers()
 static uint32_t GetDrawCount(Scene* scene)
 {
 	uint32_t drawCount{};
-	for (auto mesh : scene->GetObjects())
+
+	for (const auto& renderable : scene->GetRenderables())
 	{
-		++drawCount;
-		if (auto col = mesh->GetComponent<CollisionComponent>())
+		if (renderable->IsInstanceable())
 		{
-			for (int index{}; index < col->GetAABBs().size(); ++index)
-			{
-				++drawCount;
-			}
+			drawCount += renderable->GetModelMatrices().size();
+		}
+		else
+		{
+			++drawCount;
 		}
 	}
+
 	return drawCount;
 }
 

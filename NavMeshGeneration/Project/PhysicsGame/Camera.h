@@ -1,6 +1,7 @@
 #pragma once
 #include <cassert>
 #include "VulkanUtil/VulkanUtil.h"
+#include "VulkanBase/Time/Time.h"
 
 #include <algorithm>
 #include <glm/glm.hpp>
@@ -11,13 +12,19 @@
 struct Camera
 {
 
-	Camera(const glm::vec3& _origin, float _fovAngle) :
+	Camera(const glm::vec3& _origin, float _fovAngle, GLFWwindow* window) :
 		origin{ _origin },
 		fovAngle{ _fovAngle }
 	{
 		fov = glm::radians(fovAngle / 2.f);
 
 		CalculateProjectionMatrix();
+
+
+		double x, y;
+		glfwGetCursorPos(window, &x, &y);
+		m_LastMouseX = static_cast<int>(x);
+		m_LastMouseY = static_cast<int>(y);
 	}
 
 	glm::vec3 origin;
@@ -70,6 +77,63 @@ struct Camera
 	void Update(GLFWwindow* window)
 	{
 		CalculateViewMatrix();
+		HandleKeyboardInputs(window);
+	}
+
+
+	float m_PanSpeed{ 1.f / 180.f };
+	int m_LastMouseY{};
+	int m_LastMouseX{};
+	float m_MoveSpeed{400.f};
+
+	void HandleKeyboardInputs(GLFWwindow* window)
+	{
+		const float deltaTime = Time::GetInstance()->GetDeltaTime();
+
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		{
+			origin += m_MoveSpeed * deltaTime * forward;
+
+		}
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		{
+			origin -= m_MoveSpeed * deltaTime * right;
+
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		{
+			origin -= m_MoveSpeed * deltaTime * forward;
+
+		}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		{
+			origin += m_MoveSpeed * deltaTime * right;
+
+		}
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		{
+			origin.y += m_MoveSpeed * deltaTime;
+
+		}
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		{
+			origin.y -= m_MoveSpeed * deltaTime;
+
+		}
+
+
+		//Mouse Input
+
+		double x, y;
+		glfwGetCursorPos(window, &x, &y);
+		int mouseX{ static_cast<int>(x) - m_LastMouseX };
+		int mouseY{ static_cast<int>(y) - m_LastMouseY };
+		m_LastMouseX = static_cast<int>(x);
+		m_LastMouseY = static_cast<int>(y);
+
+		totalYaw += mouseX * m_PanSpeed;
+		totalPitch += mouseY * m_PanSpeed;
+		
 	}
 };
 

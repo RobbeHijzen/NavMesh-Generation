@@ -14,130 +14,128 @@ std::vector<Node> NavMeshGenerator::GenerateNavMesh()
 	FillHeightMap();
 
 	FillVerticesAndIndices();
+	//FillModelMatrices();
 
 	return std::vector<Node>();
 }
 
 void NavMeshGenerator::InitializeVoxels()
 {
-	m_Voxels.resize(m_VoxelsAmountX);
+	m_Voxels.resize(m_VoxelsAmountX * m_VoxelsAmountY * m_VoxelsAmountZ);
 
 	glm::vec3 min{ m_Boundaries.min.x, m_Boundaries.min.y, m_Boundaries.min.z };
 	glm::vec3 max{ m_Boundaries.max.x, m_Boundaries.max.y, m_Boundaries.max.z };
 	glm::vec3 size{max - min};
 	glm::vec3 sizePerVoxel{size.x / m_VoxelsAmountX, size.y / m_VoxelsAmountY, size.z / m_VoxelsAmountZ };
 
-	for (int x{}; x < m_Voxels.size(); ++x)
+	for (int index{}; index < m_Voxels.size(); ++index)
 	{
-		m_Voxels[x].resize(m_VoxelsAmountY);
-		for (int y{}; y < m_Voxels[x].size(); ++y)
-		{
-			m_Voxels[x][y].resize(m_VoxelsAmountZ);
-			for (int z{}; z < m_Voxels[x][y].size(); ++z)
-			{
-				Voxel result{};
+		Voxel result{};
 
-				result.bounds.min.x = min.x + sizePerVoxel.x * x;
-				result.bounds.min.y = min.y + sizePerVoxel.y * y;
-				result.bounds.min.z = min.z + sizePerVoxel.z * z;
+		result.bounds.min.y = min.y + sizePerVoxel.y * (index % m_VoxelsAmountY);
+		result.bounds.min.z = min.z + sizePerVoxel.z * ((index % (m_VoxelsAmountY * m_VoxelsAmountZ)) / m_VoxelsAmountY);
+		result.bounds.min.x = min.x + sizePerVoxel.x * (index / (m_VoxelsAmountY * m_VoxelsAmountZ));
 
-				result.bounds.max.x = result.bounds.min.x + sizePerVoxel.x;
-				result.bounds.max.y = result.bounds.min.y + sizePerVoxel.y;
-				result.bounds.max.z = result.bounds.min.z + sizePerVoxel.z;
+		result.bounds.max.y = result.bounds.min.y + sizePerVoxel.y;
+		result.bounds.max.x = result.bounds.min.x + sizePerVoxel.x;
+		result.bounds.max.z = result.bounds.min.z + sizePerVoxel.z;
 
-				m_Voxels[x][y][z] = result;
-			}
-		}
+		m_Voxels[index] = result;
 	}
-
-
-	//for (int index{}; index < m_HeightMap.size(); ++index)
-	//{
-	//	AABB2D bounds{};
-	//	bounds.min.x = min.x + sizePerVoxel.x * (index % m_VoxelsAmount);
-	//	bounds.min.y = min.y + sizePerVoxel.y * (index / m_VoxelsAmount);
-	//
-	//	bounds.max.x = bounds.min.x + sizePerVoxel.x;
-	//	bounds.max.y = bounds.min.y + sizePerVoxel.y;
-	//
-	//
-	//	m_HeightMap[index].bounds = bounds;
-	//}
 }
 
 void NavMeshGenerator::CheckForVoxelCollisions()
 {
-	for (auto& xAxis : m_Voxels)
+	
+	for (const auto& object : m_Scene->GetObjects())
 	{
-		for (auto& yAxis : xAxis)
+		if (auto collision = object->GetComponent<CollisionComponent>())
 		{
-			for (auto& voxel : yAxis)
+			if (!collision->HasStaticCollision()) continue;
+
+			for (const auto& aabb : collision->GetAABBs())
 			{
-
-				for (const auto& object : m_Scene->GetObjects())
+				for (auto& voxel : m_Voxels)
 				{
-					if (auto collision = object->GetComponent<CollisionComponent>())
+					if (voxel.type == VoxelTypes::Solid) continue;
+
+					if (voxel.bounds.AreColliding(aabb))
 					{
-						if (!collision->HasStaticCollision()) continue;
-
-						for (const auto& aabb : collision->GetAABBs())
-						{
-							if (voxel.currentHighestPoint < aabb.max.y)
-							{
-								if (voxel.bounds.AreColliding(aabb))
-								{
-
-									voxel.currentHighestPoint = aabb.max.y;
-									voxel.intersectedAABB = voxel.bounds.IntersectionRegion(aabb);
-									voxel.isSolid = true;
-								}
-							}
-						}
+						voxel.type = VoxelTypes::Solid;
 					}
 				}
-
 			}
 		}
-
 	}
 }
 
 void NavMeshGenerator::FillHeightMap()
 {
+	m_HeightMap.reserve(m_VoxelsAmountX * m_VoxelsAmountZ);
+
+	for (int index{}; index < m_VoxelsAmountX * m_VoxelsAmountZ; ++index)
+	{
+		HeightMapPixel hmp{ m_Voxels, index * m_VoxelsAmountY, m_VoxelsAmountY };
+		hmp.SetAgentHeight(2);
+
+		m_HeightMap.emplace_back(hmp);
+	}
 }
 
 void NavMeshGenerator::FillVerticesAndIndices()
 {
-	for (const auto& xAxis : m_Voxels)
+	for (const auto& heightMapPixel : m_HeightMap)
 	{
-		for (const auto& yAxis : xAxis)
+		for (const auto& idx : heightMapPixel.GetWalkableIndices())
 		{
-			for (const auto& voxel : yAxis)
-			{
-				if (voxel.isSolid)
-				{
-					size_t sizeBefore{ m_Vertices.size() };
+			size_t sizeBefore{ m_Vertices.size() };
+			const auto& voxel{ m_Voxels[idx]};
 
-					//m_Vertices.emplace_back(Vertex{ {voxel.intersectedAABB.min.x, voxel.currentHighestPoint + m_RenderHeightOffset, voxel.intersectedAABB.min.y} });
-					//m_Vertices.emplace_back(Vertex{ {voxel.intersectedAABB.min.x, voxel.currentHighestPoint + m_RenderHeightOffset, voxel.intersectedAABB.max.y} });
-					//m_Vertices.emplace_back(Vertex{ {voxel.intersectedAABB.max.x, voxel.currentHighestPoint + m_RenderHeightOffset, voxel.intersectedAABB.min.y} });
-					//m_Vertices.emplace_back(Vertex{ {voxel.intersectedAABB.max.x, voxel.currentHighestPoint + m_RenderHeightOffset, voxel.intersectedAABB.max.y} });
+			m_Vertices.emplace_back(Vertex{ {voxel.bounds.min.x, voxel.bounds.max.y + m_RenderHeightOffset, voxel.bounds.min.z} });
+			m_Vertices.emplace_back(Vertex{ {voxel.bounds.min.x, voxel.bounds.max.y + m_RenderHeightOffset, voxel.bounds.max.z} });
+			m_Vertices.emplace_back(Vertex{ {voxel.bounds.max.x, voxel.bounds.max.y + m_RenderHeightOffset, voxel.bounds.min.z} });
+			m_Vertices.emplace_back(Vertex{ {voxel.bounds.max.x, voxel.bounds.max.y + m_RenderHeightOffset, voxel.bounds.max.z} });
 
-					m_Vertices.emplace_back(Vertex{ {voxel.bounds.min.x, voxel.currentHighestPoint + m_RenderHeightOffset, voxel.bounds.min.z} });
-					m_Vertices.emplace_back(Vertex{ {voxel.bounds.min.x, voxel.currentHighestPoint + m_RenderHeightOffset, voxel.bounds.max.z} });
-					m_Vertices.emplace_back(Vertex{ {voxel.bounds.max.x, voxel.currentHighestPoint + m_RenderHeightOffset, voxel.bounds.min.z} });
-					m_Vertices.emplace_back(Vertex{ {voxel.bounds.max.x, voxel.currentHighestPoint + m_RenderHeightOffset, voxel.bounds.max.z} });
+			m_Indices.emplace_back(sizeBefore);
+			m_Indices.emplace_back(sizeBefore + 1);
+			m_Indices.emplace_back(sizeBefore + 2);
 
-					m_Indices.emplace_back(sizeBefore);
-					m_Indices.emplace_back(sizeBefore + 1);
-					m_Indices.emplace_back(sizeBefore + 2);
-
-					m_Indices.emplace_back(sizeBefore + 1);
-					m_Indices.emplace_back(sizeBefore + 2);
-					m_Indices.emplace_back(sizeBefore + 3);
-				}
-			}
+			m_Indices.emplace_back(sizeBefore + 1);
+			m_Indices.emplace_back(sizeBefore + 2);
+			m_Indices.emplace_back(sizeBefore + 3);
 		}
-		
+	}
+
+}
+
+void NavMeshGenerator::FillModelMatrices()
+{
+	m_ModelMatrices.reserve(m_Voxels.size());
+
+	for (const auto& heightMapPixel : m_HeightMap)
+	{
+		for (const auto& idx : heightMapPixel.GetWalkableIndices())
+		{
+			const auto& voxel{ m_Voxels[idx] };
+
+			glm::vec3 scale{ voxel.bounds.max - voxel.bounds.min };
+			glm::mat4 scaleMat{ glm::scale(glm::mat4{ 1.f }, scale) };
+
+			glm::vec3 translation{ (voxel.bounds.max + voxel.bounds.min) / 2.f };
+			glm::mat4 translationMat{ glm::translate(glm::mat4{1.f}, translation) };
+
+			m_ModelMatrices.emplace_back(translationMat * scaleMat);
+		}
 	}
 }
+
+std::vector<Vertex> NavMeshGenerator::m_Vertices{ glm::vec3{ -0.5f, -0.5f, -0.5f },
+													glm::vec3{ -0.5f, -0.5f,  0.5f },
+													glm::vec3{ -0.5f,  0.5f, -0.5f },
+													glm::vec3{ -0.5f,  0.5f,  0.5f },
+													glm::vec3{  0.5f, -0.5f, -0.5f },
+													glm::vec3{  0.5f, -0.5f,  0.5f },
+													glm::vec3{  0.5f,  0.5f, -0.5f },
+													glm::vec3{  0.5f,  0.5f,  0.5f } };
+
+std::vector<uint32_t> NavMeshGenerator::m_Indices{ 0, 1, 2,  1, 2, 3,  0, 4, 6,  6, 0, 2,  1, 5, 7,  7, 1, 3,  4, 5, 6,  6, 7, 2 };

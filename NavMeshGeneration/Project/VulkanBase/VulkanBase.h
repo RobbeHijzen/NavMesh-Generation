@@ -6,7 +6,6 @@
 #include <GLFW/glfw3native.h>
 
 #include "PhysicsGame/Collision/CollisionFixer.h"
-#include "PhysicsGame/Components/DerivedComponents/CameraComponent.h"
 #include "PhysicsGame/Components/DerivedComponents/CollisionComponent.h"
 #include "PhysicsGame/Components/DerivedComponents/MovementComponent.h"
 #include "PhysicsGame/Camera.h"
@@ -100,7 +99,7 @@ private:
 
 		m_GraphicsPipelines.resize(static_cast<int>(PipelinesEnum::numValues));
 		CreateGraphicsPipeline((int)PipelinesEnum::regular, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE);
-		CreateGraphicsPipeline((int)PipelinesEnum::linesOnly, VK_POLYGON_MODE_LINE, VK_CULL_MODE_NONE);
+		CreateGraphicsPipeline((int)PipelinesEnum::linesOnly, VK_POLYGON_MODE_LINE, VK_CULL_MODE_NONE, true);
 		CreateGraphicsPipeline((int)PipelinesEnum::opacity, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE, true);
 		m_Shader3D->DestroyShaderStages(m_Device);
 		
@@ -279,7 +278,7 @@ private:
 		m_Shader3D = std::make_unique<Shader3D>("Resources/Shaders/shader3D.vert.spv", "Resources/Shaders/shader3D.frag.spv");
 		m_Shader3D->Initialize(m_Device);
 
-		m_Camera = std::make_unique<Camera>(glm::vec3{}, 150.f);
+		m_Camera = std::make_unique<Camera>(glm::vec3{0.f, 200.f, -100.f}, 150.f, m_Window);
 	}
 	void LoadScene();
 
@@ -289,7 +288,7 @@ private:
 
 	std::unique_ptr<Camera> m_Camera;
 
-	bool m_DrawOutlines{ true };
+	bool m_DrawOutlines{ false };
 	bool m_CanToggleDrawOutlines{ true };
 	void HandleToggleKeyboardPresses(GLFWwindow* window);
 
