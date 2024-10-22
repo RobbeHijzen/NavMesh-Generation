@@ -1,5 +1,6 @@
 #pragma once
 #include "NavMeshStructs.h"
+#include "PathfindingStructs.h"
 #include "VulkanBase/Scene/Scene.h"
 
 class NavMeshGenerator : public Object, public IRenderable
@@ -7,7 +8,7 @@ class NavMeshGenerator : public Object, public IRenderable
 public:
 
 	NavMeshGenerator(Scene* scene);
-	std::vector<Node> GenerateNavMesh();
+	std::vector<NavMesh::VoxelNode> GenerateNavMesh();
 
 private:
 
@@ -17,17 +18,24 @@ private:
 	int m_VoxelsAmountZ{100};
 
 
-	std::vector<Voxel> m_Voxels{};
-	std::vector<HeightMapPixel> m_HeightMap{};
+	std::vector<NavMesh::Voxel> m_Voxels{};
+	std::vector<std::pair<NavMesh::Voxel*, int>> m_WalkableVoxels{};	// pair: voxel and the index of the voxel in m_Voxels
+	std::vector<NavMesh::VoxelNode> m_VoxelNodes{};
+	std::vector<NavMesh::HeightMapPixel> m_HeightMap{};
 	Scene* m_Scene{};
 
 	void InitializeVoxels();
 	void CheckForVoxelCollisions();
 	void FillHeightMap();
+	void FillWalkableVoxels();
 
 	void FillVerticesAndIndices();
-	void FillModelMatrices();
 
+	void CreateVoxelNodes();
+	std::vector<NavMesh::Voxel*> GetNeighborsFromVoxelIndex(int index);
+
+	glm::i32vec3 GetXYZFromIndex(int index) const;
+	int GetIndexFromXYZ(int x, int y, int z) const;
 
 	//************************
 	// Rendering
@@ -35,8 +43,8 @@ private:
 
 	float m_RenderHeightOffset{0.5f};
 
-	static std::vector<Vertex> m_Vertices;
-	static std::vector<uint32_t> m_Indices;
+	std::vector<Vertex> m_Vertices{};
+	std::vector<uint32_t> m_Indices{};
 
 	std::optional<uint32_t> m_RenderID{};
 
