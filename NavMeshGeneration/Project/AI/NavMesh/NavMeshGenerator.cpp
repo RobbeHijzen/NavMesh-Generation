@@ -1,12 +1,11 @@
 #include "NavMeshGenerator.h"
 #include "PhysicsGame/Components/DerivedComponents/CollisionComponent.h"
 
-using namespace NavMesh;
+using namespace NavMeshStructs;
 
 NavMeshGenerator::NavMeshGenerator(Scene* scene)
 	: m_Scene{scene}
 {
-	GenerateNavMesh();
 }
 
 std::vector<VoxelNode> NavMeshGenerator::GenerateNavMesh()
@@ -34,7 +33,7 @@ void NavMeshGenerator::InitializeVoxels()
 	for (int index{}; index < m_Voxels.size(); ++index)
 	{
 		Voxel result{};
-
+		
 		auto xyz{GetXYZFromIndex(index)};
 
 		result.bounds.min.y = min.y + sizePerVoxel.y * xyz.y;
@@ -94,7 +93,7 @@ void NavMeshGenerator::FillWalkableVoxels()
 		for (const auto& idx : heightMapPixel.GetWalkableIndices())
 		{
 			m_Voxels[idx].type = VoxelTypes::Walkable;
-			m_WalkableVoxels.emplace_back(&m_Voxels[idx], idx);
+			m_WalkableVoxelsIndices.emplace_back(idx);
 		}
 	}
 }
@@ -103,19 +102,19 @@ void NavMeshGenerator::CreateVoxelNodes()
 {
 	m_VoxelNodes.reserve(m_Voxels.size());
 
-	for (const auto& walkableVoxel : m_WalkableVoxels)
+	for (const auto& walkableVoxelIndex : m_WalkableVoxelsIndices)
 	{
 		VoxelNode voxelNode{};
-		voxelNode.voxel = walkableVoxel.first;
-		voxelNode.neighbors = GetNeighborsFromVoxelIndex(walkableVoxel.second);
+		voxelNode.voxel = &m_Voxels[walkableVoxelIndex];
+		voxelNode.neighbors = GetNeighborsFromVoxelIndex(walkableVoxelIndex);
 
 		m_VoxelNodes.emplace_back(voxelNode);
 	}
 }
 
-std::vector<Voxel*> NavMeshGenerator::GetNeighborsFromVoxelIndex(int index)
+std::vector<const Voxel*> NavMeshGenerator::GetNeighborsFromVoxelIndex(int index)
 {
-	std::vector<Voxel*> neighbors{};
+	std::vector<const Voxel*> neighbors{};
 
 	auto xyz{ GetXYZFromIndex(index) };
 
@@ -188,14 +187,14 @@ int NavMeshGenerator::GetIndexFromXYZ(int x, int y, int z) const
 
 void NavMeshGenerator::FillVerticesAndIndices()
 {
-	for(const auto& walkableVoxel : m_WalkableVoxels)
+	for(const auto& walkableVoxelIndex : m_WalkableVoxelsIndices)
 	{
 			size_t sizeBefore{ m_Vertices.size() };
 
-			m_Vertices.emplace_back(Vertex{ {walkableVoxel.first->bounds.min.x, walkableVoxel.first->bounds.max.y + m_RenderHeightOffset, walkableVoxel.first->bounds.min.z} });
-			m_Vertices.emplace_back(Vertex{ {walkableVoxel.first->bounds.min.x, walkableVoxel.first->bounds.max.y + m_RenderHeightOffset, walkableVoxel.first->bounds.max.z} });
-			m_Vertices.emplace_back(Vertex{ {walkableVoxel.first->bounds.max.x, walkableVoxel.first->bounds.max.y + m_RenderHeightOffset, walkableVoxel.first->bounds.min.z} });
-			m_Vertices.emplace_back(Vertex{ {walkableVoxel.first->bounds.max.x, walkableVoxel.first->bounds.max.y + m_RenderHeightOffset, walkableVoxel.first->bounds.max.z} });
+			m_Vertices.emplace_back(Vertex{ {m_Voxels[walkableVoxelIndex].bounds.min.x, m_Voxels[walkableVoxelIndex].bounds.max.y + m_RenderHeightOffset, m_Voxels[walkableVoxelIndex].bounds.min.z}});
+			m_Vertices.emplace_back(Vertex{ {m_Voxels[walkableVoxelIndex].bounds.min.x, m_Voxels[walkableVoxelIndex].bounds.max.y + m_RenderHeightOffset, m_Voxels[walkableVoxelIndex].bounds.max.z} });
+			m_Vertices.emplace_back(Vertex{ {m_Voxels[walkableVoxelIndex].bounds.max.x, m_Voxels[walkableVoxelIndex].bounds.max.y + m_RenderHeightOffset, m_Voxels[walkableVoxelIndex].bounds.min.z} });
+			m_Vertices.emplace_back(Vertex{ {m_Voxels[walkableVoxelIndex].bounds.max.x, m_Voxels[walkableVoxelIndex].bounds.max.y + m_RenderHeightOffset, m_Voxels[walkableVoxelIndex].bounds.max.z} });
 
 			m_Indices.emplace_back(sizeBefore);
 			m_Indices.emplace_back(sizeBefore + 1);

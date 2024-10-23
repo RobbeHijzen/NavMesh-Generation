@@ -1,7 +1,7 @@
 #pragma once
 #include "VulkanBase/HelperStructs/HelperStructs.h"
 
-namespace NavMesh 
+namespace NavMeshStructs
 {
 
 	enum class VoxelTypes
@@ -19,8 +19,8 @@ namespace NavMesh
 
 	struct VoxelNode
 	{
-		Voxel* voxel{};
-		std::vector<Voxel*> neighbors{};
+		const Voxel* voxel{};
+		std::vector<const Voxel*> neighbors{};
 	};
 
 	struct Span

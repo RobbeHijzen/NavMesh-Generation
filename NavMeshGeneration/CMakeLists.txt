@@ -13,13 +13,13 @@ FetchContent_Declare(
   glfw
   GIT_REPOSITORY https://github.com/glfw/glfw.git
   GIT_TAG        3.3.8 # Specify the version you need 
-  GIT_SHALLOW TRUE
+  GIT_SHALLOW TRUE 
 )
 
-option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
+option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF) 
 option(GLFW_INSTALL "Generate installation target" OFF)
 option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
-FetchContent_MakeAvailable(glfw)
+FetchContent_MakeAvailable(glfw) 
 
 FetchContent_MakeAvailable(glfw)
 

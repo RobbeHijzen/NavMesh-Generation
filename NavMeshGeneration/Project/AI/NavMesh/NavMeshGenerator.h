@@ -8,7 +8,7 @@ class NavMeshGenerator : public Object, public IRenderable
 public:
 
 	NavMeshGenerator(Scene* scene);
-	std::vector<NavMesh::VoxelNode> GenerateNavMesh();
+	std::vector<NavMeshStructs::VoxelNode> GenerateNavMesh();
 
 private:
 
@@ -18,10 +18,11 @@ private:
 	int m_VoxelsAmountZ{100};
 
 
-	std::vector<NavMesh::Voxel> m_Voxels{};
-	std::vector<std::pair<NavMesh::Voxel*, int>> m_WalkableVoxels{};	// pair: voxel and the index of the voxel in m_Voxels
-	std::vector<NavMesh::VoxelNode> m_VoxelNodes{};
-	std::vector<NavMesh::HeightMapPixel> m_HeightMap{};
+	std::vector<NavMeshStructs::Voxel> m_Voxels{};
+
+	std::vector<int> m_WalkableVoxelsIndices{};	// pair: voxel and the index of the voxel in m_Voxels
+	std::vector<NavMeshStructs::VoxelNode> m_VoxelNodes{};
+	std::vector<NavMeshStructs::HeightMapPixel> m_HeightMap{};
 	Scene* m_Scene{};
 
 	void InitializeVoxels();
@@ -32,7 +33,7 @@ private:
 	void FillVerticesAndIndices();
 
 	void CreateVoxelNodes();
-	std::vector<NavMesh::Voxel*> GetNeighborsFromVoxelIndex(int index);
+	std::vector<const NavMeshStructs::Voxel*> GetNeighborsFromVoxelIndex(int index);
 
 	glm::i32vec3 GetXYZFromIndex(int index) const;
 	int GetIndexFromXYZ(int x, int y, int z) const;
@@ -59,7 +60,7 @@ private:
 	virtual void Render(VkCommandBuffer buffer) const override { vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0); }
 
 	virtual PipelinesEnum GetPipelineID() const override { return PipelinesEnum::opacity; }
-	virtual std::string GetDiffuseString() const override { return "Resources/texs/NavMesh.png"; }
+	virtual std::string GetDiffuseString() const override { return "Resources/texs/Green.png"; }
 
 	virtual std::vector<glm::mat4> GetModelMatrices() const override { return m_ModelMatrices; }
 	virtual bool IsInstanceable() const override { return false; }

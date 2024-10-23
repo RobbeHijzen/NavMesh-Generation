@@ -1,5 +1,5 @@
 #include "vulkanbase/VulkanBase.h"
-#include "AI/NavMesh/NavMeshGenerator.h"
+#include "AI/NavMesh/NavMesh.h"
 
 void VulkanBase::LoadScene()
 {
@@ -32,7 +32,12 @@ void VulkanBase::LoadScene()
 
 	// NavMesh
 	auto navMeshGenerator{ new NavMeshGenerator(m_Scene)};
+	auto pathFinder{ new PathFinder() };
+	auto navMesh{ new NavMesh(navMeshGenerator, pathFinder)};
+
 	m_Scene->AddObject(navMeshGenerator);
+	m_Scene->AddObject(pathFinder);
+	m_Scene->AddObject(navMesh);
 }
 
 void VulkanBase::HandleToggleKeyboardPresses(GLFWwindow* window)
