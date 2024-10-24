@@ -1,5 +1,4 @@
 #include "vulkanbase/VulkanBase.h"
-#include "AI/NavMesh/NavMesh.h"
 
 void VulkanBase::LoadScene()
 {
@@ -38,26 +37,24 @@ void VulkanBase::LoadScene()
 	m_Scene->AddObject(navMeshGenerator);
 	m_Scene->AddObject(pathFinder);
 	m_Scene->AddObject(navMesh);
+
+	m_NavMesh = navMesh;
 }
 
-void VulkanBase::HandleToggleKeyboardPresses(GLFWwindow* window)
+void VulkanBase::HandleInput(GLFWwindow* window)
 {
-	//if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && m_CanToggleDrawOutlines)
-	//{
-	//	m_CanToggleDrawOutlines = false;
-	//	m_DrawOutlines = !m_DrawOutlines;
-	//
-	//	for (auto& object : m_Scene->GetObjects())
-	//	{
-	//		if (auto col = object->GetComponent<CollisionComponent>())
-	//		{
-	//			col->SetHidden(!m_DrawOutlines);
-	//		}
-	//	}
-	//}
-	//else if(glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS)
-	//{
-	//	m_CanToggleDrawOutlines = true;
-	//}
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && m_CanRepathNavMesh)
+	{
+		m_CanRepathNavMesh = false;
+	
+		m_NavMesh->GenerateRandomPath();
+
+		FillVertexBuffer(m_NavMesh->GetVertices(), m_NavMesh->GetRenderID());
+		FillIndexBuffer(m_NavMesh->GetIndices(), m_NavMesh->GetRenderID());
+	}
+	else if(glfwGetKey(window, GLFW_KEY_R) != GLFW_PRESS)
+	{
+		m_CanRepathNavMesh = true;
+	}
 
 }

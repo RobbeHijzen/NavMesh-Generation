@@ -8,15 +8,20 @@ void VulkanBase::CreateVertexBuffers()
 	// renderable vertices
 	for (auto& renderable : m_Scene->GetRenderables())
 	{
-		VkBuffer vertexBuffer; 
-		VkDeviceMemory vertexBufferMemory;
-
-		CreateVertexBuffer(renderable->GetVertices(), vertexBuffer, vertexBufferMemory);
-		
-		m_VertexBuffers[renderable->GetRenderID()] = vertexBuffer;
-		m_VertexBuffersMemory[renderable->GetRenderID()] = vertexBufferMemory;
+		FillVertexBuffer(renderable->GetVertices(), renderable->GetRenderID());
 	}
 }
+void VulkanBase::FillVertexBuffer(const std::vector<Vertex>& vertices, int renderID)
+{
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
+
+	CreateVertexBuffer(vertices, vertexBuffer, vertexBufferMemory);
+
+	m_VertexBuffers[renderID] = vertexBuffer;
+	m_VertexBuffersMemory[renderID] = vertexBufferMemory;
+}
+
 void VulkanBase::CreateIndexBuffers()
 {
 	m_IndexBuffers.resize(m_Scene->GetRenderablesAmount());
@@ -25,14 +30,20 @@ void VulkanBase::CreateIndexBuffers()
 	// renderable indices
 	for (auto& renderable : m_Scene->GetRenderables())
 	{
-		VkBuffer indexBuffer;
-		VkDeviceMemory indexBufferMemory;
-		CreateIndexBuffer(renderable->GetIndices(), indexBuffer, indexBufferMemory);
-
-		m_IndexBuffers[renderable->GetRenderID()] = indexBuffer;
-		m_IndexBuffersMemory[renderable->GetRenderID()] = indexBufferMemory;
+		FillIndexBuffer(renderable->GetIndices(), renderable->GetRenderID());
 	}
 }
+void VulkanBase::FillIndexBuffer(const std::vector<uint32_t>& indices, int renderID)
+{
+	VkBuffer indexBuffer;
+	VkDeviceMemory indexBufferMemory;
+
+	CreateIndexBuffer(indices, indexBuffer, indexBufferMemory);
+
+	m_IndexBuffers[renderID] = indexBuffer;
+	m_IndexBuffersMemory[renderID] = indexBufferMemory;
+}
+
 
 void VulkanBase::CreateVertexBuffer(std::vector<Vertex> vertices, VkBuffer& vertexBuffer, VkDeviceMemory& vertexBufferMemory)
 {
@@ -82,4 +93,5 @@ void VulkanBase::CreateIndexBuffer(std::vector<uint32_t> indices, VkBuffer& inde
 	vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
 	vkFreeMemory(m_Device, stagingBufferMemory, nullptr);
 }
+
 

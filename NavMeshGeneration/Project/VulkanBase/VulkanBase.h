@@ -17,6 +17,7 @@
 #include "VulkanBase/Scene/Scene.h"
 #include "Vulkanbase/Time/Time.h"
 #include "Vulkanbase/HelperStructs/HelperStructs.h"
+#include "AI/NavMesh/NavMesh.h"
 
 #include "VulkanBase/HelperStructs/PipelinesEnum.h"
 
@@ -153,7 +154,7 @@ private:
 
 			// Input
 			glfwPollEvents();
-			HandleToggleKeyboardPresses(m_Window);
+			HandleInput(m_Window);
 
 			// Update Camera and Meshes
 			m_Camera->Update(m_Window);
@@ -288,9 +289,10 @@ private:
 
 	std::unique_ptr<Camera> m_Camera;
 
-	bool m_DrawOutlines{ false };
-	bool m_CanToggleDrawOutlines{ true };
-	void HandleToggleKeyboardPresses(GLFWwindow* window);
+	NavMesh* m_NavMesh{};
+
+	bool m_CanRepathNavMesh{ true };
+	void HandleInput(GLFWwindow* window);
 
 	// Window / Surface setup
 	GLFWwindow* m_Window{};
@@ -396,6 +398,8 @@ private:
 	void CreateVertexBuffer(std::vector<Vertex> vertices, VkBuffer& vertexBuffer, VkDeviceMemory& vertexBufferMemory);
 	void CreateIndexBuffer(std::vector<uint32_t> indices, VkBuffer& indexBuffer, VkDeviceMemory& indexBufferMemory);
 
+	void FillVertexBuffer(const std::vector<Vertex>& vertices, int renderID);
+	void FillIndexBuffer(const std::vector<uint32_t>& indices, int renderID);
 
 	// Uniform buffer
 	VkDescriptorPool m_DescriptorPool{};

@@ -6,15 +6,30 @@ NavMesh::NavMesh(NavMeshGenerator* navMeshGenerator, PathFinder* pathFinder)
 {
 	m_VoxelNodes = navMeshGenerator->GenerateNavMesh();
 
-	int randomStartIndex{rand() % int(m_VoxelNodes.size())};
-	int randomEndIndex{rand() % int(m_VoxelNodes.size())};
+	GenerateRandomPath();
+}
 
-	//FillVerticesAndIndices(m_PathFinder->GetPath(m_VoxelNodes, randomStartIndex, randomEndIndex));
-	FillVerticesAndIndices(m_PathFinder->GetPath(m_VoxelNodes, 285, 6227));
+void NavMesh::GenerateRandomPath()
+{
+	int randomStartIndex{ rand() % int(m_VoxelNodes.size()) };
+	int randomEndIndex{ rand() % int(m_VoxelNodes.size()) };
+
+	auto path{ m_PathFinder->GetPath(m_VoxelNodes, randomStartIndex, randomEndIndex) };
+
+	if (path.size() == 0)
+	{
+		path.emplace_back(m_VoxelNodes[randomStartIndex].voxel);
+		path.emplace_back(m_VoxelNodes[randomEndIndex].voxel);
+	}
+
+	FillVerticesAndIndices(path);
 }
 
 void NavMesh::FillVerticesAndIndices(std::vector<const NavMeshStructs::Voxel*> path)
 {
+	m_Vertices.clear();
+	m_Indices.clear();
+
 	for (const auto& voxel : path)
 	{
 		size_t sizeBefore{ m_Vertices.size() };
