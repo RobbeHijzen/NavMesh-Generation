@@ -1,12 +1,11 @@
 #include "NavMesh.h"
+#include <chrono>
+#include <numeric>
 
 NavMesh::NavMesh(NavMeshGenerator* navMeshGenerator, PathFinder* pathFinder)
 	: m_NavMeshGenerator{navMeshGenerator}
 	, m_PathFinder{pathFinder}
 {
-	m_VoxelNodes = navMeshGenerator->GenerateNavMesh();
-
-	GenerateRandomPath();
 }
 
 void NavMesh::GenerateRandomPath()
@@ -23,6 +22,65 @@ void NavMesh::GenerateRandomPath()
 	}
 
 	FillVerticesAndIndices(path);
+}
+void NavMesh::GenerateRandomPathsTest(int amount)
+{
+	std::vector<float> times{};
+	times.reserve(amount);
+
+	for (int index{}; index < amount; ++index)
+	{
+		auto start = std::chrono::high_resolution_clock::now();
+
+		GenerateRandomPath();
+
+		auto end = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration<float>(end - start).count();
+
+		times.emplace_back(duration);
+	}
+
+	std::sort(times.begin(), times.end());
+	times.erase(times.begin());
+	times.pop_back();
+
+	float total{ std::accumulate(times.begin(), times.end(), 0.f) };
+	float average{ total / static_cast<float>(times.size()) };
+
+	std::cout << "Average Time for Path generation: " << average << "\n";
+}
+
+
+void NavMesh::GenerateNavMesh()
+{
+	m_VoxelNodes = m_NavMeshGenerator->GenerateNavMesh();
+}
+
+void NavMesh::GenerateNavMeshesTest(int amount)
+{
+	std::vector<float> times{};
+	times.reserve(amount);
+
+	for (int index{}; index < amount; ++index)
+	{
+		auto start = std::chrono::high_resolution_clock::now();
+
+		GenerateNavMesh();
+
+		auto end = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration<float>(end - start).count();
+
+		times.emplace_back(duration);
+	}
+
+	std::sort(times.begin(), times.end());
+	times.erase(times.begin());
+	times.pop_back();
+
+	float total{std::accumulate(times.begin(), times.end(), 0.f)};
+	float average{ total / static_cast<float>(times.size()) };
+
+	std::cout << "Average Time for NavMesh generation: " << average << "\n";
 }
 
 void NavMesh::FillVerticesAndIndices(std::vector<const NavMeshStructs::Voxel*> path)

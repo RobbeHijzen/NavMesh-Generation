@@ -1,116 +1,76 @@
 #include "PathFinder.h"
 #include <list>
+#include <queue>
 
 using namespace NavMeshStructs;
 using namespace PathFindingStructs;
 
-std::vector<const NavMeshStructs::Voxel*> PathFinder::GetPath(std::vector<VoxelNode> graph, int startIndex, int endIndex)
+std::vector<const NavMeshStructs::Voxel*> PathFinder::GetPath(const std::vector<VoxelNode>& graph, int startIndex, int endIndex)
 {
 	std::vector<const Voxel*> result{};
+    const VoxelNode* startVoxel = &graph[startIndex];
+    const VoxelNode* endVoxel = &graph[endIndex];
+    
+    
+	std::priority_queue<NodeRecord, std::vector<NodeRecord>, NodeRecordCompare> openList{};
+	std::unordered_map<const VoxelNode*, NodeRecord> closedList{};
+    NodeRecord startNodeRecord{startVoxel, {}, 0, GetCost(startVoxel, endVoxel)};
 
-	VoxelNode* startVoxel{ &graph[startIndex] };
-	VoxelNode* endVoxel{ &graph[endIndex] };
-	
-	std::list<NodeRecord> openList{};
-	std::list<NodeRecord> closedList{};
-	NodeRecord currentNodeRecord{};
+    openList.emplace(startNodeRecord);
 
-	currentNodeRecord.voxelNode = startVoxel;
-	currentNodeRecord.connection = {};
-	currentNodeRecord.costSoFar = 0;
-	currentNodeRecord.estimatedTotalCost = GetCost(startVoxel, endVoxel);
-
-	openList.emplace_back(currentNodeRecord);
-
-	while (!openList.empty())
+    while (!openList.empty()) 
 	{
-		currentNodeRecord = *std::min_element(openList.begin(), openList.end());
+        NodeRecord currentNodeRecord = openList.top();
+        openList.pop();
 
-		if (currentNodeRecord.voxelNode == endVoxel)
+        // Check if we reached the goal
+        if (currentNodeRecord.voxelNode == endVoxel) 
 		{
-			break;
-		}
+            closedList[endVoxel] = currentNodeRecord;
+            break;
+        }
 
-		for (auto neighbor : currentNodeRecord.voxelNode->neighbors)
+        // Explore neighbors
+        for (auto neighbor : currentNodeRecord.voxelNode->neighbors) 
 		{
-			float totalGCost{ currentNodeRecord.costSoFar + GetCost(currentNodeRecord.voxelNode, neighbor) };
+            float totalGCost = currentNodeRecord.costSoFar + GetCost(currentNodeRecord.voxelNode, neighbor);
 
-			NodeRecord newNodeRecord{}; // Done here because of goto complaining
-
-			for (auto& nodeRecord : closedList)
+            auto closedIter = closedList.find(GetVoxelNodeFromVoxel(graph, neighbor));
+            if (closedIter != closedList.end() && closedIter->second.costSoFar <= totalGCost) 
 			{
-				if (nodeRecord.voxelNode->voxel == neighbor)
-				{
-					if (nodeRecord.costSoFar > totalGCost)
-					{
-						closedList.remove(nodeRecord);
-					}
-					else
-					{
-						goto nextConnection;
-					}
-					break;
-				}
-			}
-			for (auto& nodeRecord : openList)
+                continue;
+            }
+
+            NodeRecord newNodeRecord
 			{
-				if (nodeRecord.voxelNode->voxel == neighbor)
-				{
-					if (nodeRecord.costSoFar > totalGCost)
-					{
-						openList.remove(nodeRecord);
-					}
-					else
-					{
-						goto nextConnection;
-					}
-					break;
-				}
-			}
+                GetVoxelNodeFromVoxel(graph, neighbor),
+                {currentNodeRecord.voxelNode->voxel, neighbor},
+                totalGCost,
+                totalGCost + GetCost(endVoxel, neighbor)
+            };
 
-			newNodeRecord.voxelNode = GetVoxelNodeFromVoxel(graph, neighbor);
-			newNodeRecord.costSoFar = totalGCost;
-			newNodeRecord.estimatedTotalCost = totalGCost + GetCost(endVoxel, neighbor);
-			newNodeRecord.connection = Connection{ currentNodeRecord.voxelNode->voxel, neighbor };
+            openList.emplace(newNodeRecord);
+            closedList[newNodeRecord.voxelNode] = newNodeRecord;
+        }
+    }
 
-			openList.emplace_back(newNodeRecord);
-		nextConnection:;
-		}
-		closedList.emplace_back(currentNodeRecord);
-		openList.remove(currentNodeRecord);
-
-	}
-	closedList.emplace_back(currentNodeRecord);
-
-	// Checks if the EndNode is in the list
-	bool foundEndNode{ false };
-	for (auto& nodeRecord : closedList)
+    // If we did not reach the end voxel, return an empty path
+    if (closedList.find(endVoxel) == closedList.end()) 
 	{
-		if (nodeRecord.voxelNode == endVoxel)
-		{
-			foundEndNode = true;
-			break;
-		}
-	}
-	if (!foundEndNode) return result;
+        return result;
+    }
 
-	// BackTracking
-	while (currentNodeRecord.voxelNode != startVoxel)
+    // Backtrack to construct the path
+    NodeRecord currentNodeRecord = closedList[endVoxel];
+    while (currentNodeRecord.voxelNode != startVoxel) 
 	{
-		result.emplace_back(currentNodeRecord.voxelNode->voxel);
-		for (const auto& nodeRecord : closedList)
-		{
-			if (nodeRecord.voxelNode->voxel == currentNodeRecord.connection.fromVoxel)
-			{
-				currentNodeRecord = nodeRecord;
-				break;
-			}
-		}
-	}
-	result.emplace_back(startVoxel->voxel);
-	
-	std::reverse(result.begin(), result.end());
-	return result;
+        result.emplace_back(currentNodeRecord.voxelNode->voxel);
+        currentNodeRecord = closedList[GetVoxelNodeFromVoxel(graph, currentNodeRecord.connection.fromVoxel)];
+    }
+    result.emplace_back(startVoxel->voxel);
+
+    std::reverse(result.begin(), result.end());
+    return result;
 }
 
 float PathFinder::GetCost(const NavMeshStructs::Voxel* v1, const NavMeshStructs::Voxel* v2)

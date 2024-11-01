@@ -10,6 +10,11 @@ NavMeshGenerator::NavMeshGenerator(Scene* scene)
 
 std::vector<VoxelNode> NavMeshGenerator::GenerateNavMesh()
 {
+	m_Voxels.clear();
+	m_WalkableVoxelsIndices.clear();
+	m_VoxelNodes.clear();
+	m_HeightMap.clear();
+
 	InitializeVoxels();
 	CheckForVoxelCollisions();
 	FillHeightMap();
@@ -187,6 +192,9 @@ int NavMeshGenerator::GetIndexFromXYZ(int x, int y, int z) const
 
 void NavMeshGenerator::FillVerticesAndIndices()
 {
+	m_Vertices.clear();
+	m_Indices.clear();
+
 	for(const auto& walkableVoxelIndex : m_WalkableVoxelsIndices)
 	{
 			size_t sizeBefore{ m_Vertices.size() };

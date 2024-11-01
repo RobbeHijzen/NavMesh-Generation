@@ -139,12 +139,12 @@ private:
 		for (auto object : m_Scene->GetObjects())
 			object->GameStart();
 
-		// Print keybinds to the console
-		for (int index{}; index < 30; ++index) std::cout << "\n";
-		std::cout << "---- Keyboard Bindings ----\n\n";
-		std::cout << "WASD: \tmove\n";
-		std::cout << "Space: \tjump\n\n";
-		for (int index{}; index < 15; ++index) std::cout << "\n";
+		//// Print keybinds to the console
+		//for (int index{}; index < 30; ++index) std::cout << "\n";
+		//std::cout << "---- Keyboard Bindings ----\n\n";
+		//std::cout << "WASD: \tmove\n";
+		//std::cout << "Space: \tjump\n\n";
+		//for (int index{}; index < 15; ++index) std::cout << "\n";
 
 		// LOOP
 		while (!glfwWindowShouldClose(m_Window))

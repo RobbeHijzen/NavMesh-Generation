@@ -8,7 +8,12 @@ class NavMesh : public Object, public IRenderable
 public:
 	
 	NavMesh(NavMeshGenerator* navMeshGenerator, PathFinder* pathFinder);
+
+	void GenerateNavMesh();
+	void GenerateNavMeshesTest(int amount);
+
 	void GenerateRandomPath();
+	void GenerateRandomPathsTest(int amount);
 
 	// Rendering
 	virtual const std::vector<Vertex>& GetVertices() const override { return m_Vertices; }

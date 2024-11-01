@@ -39,6 +39,9 @@ void VulkanBase::LoadScene()
 	m_Scene->AddObject(navMesh);
 
 	m_NavMesh = navMesh;
+	m_NavMesh->GenerateNavMeshesTest(10);
+
+	m_NavMesh->GenerateRandomPathsTest(20);
 }
 
 void VulkanBase::HandleInput(GLFWwindow* window)
