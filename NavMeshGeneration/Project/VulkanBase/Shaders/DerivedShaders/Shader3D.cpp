@@ -102,7 +102,7 @@ void Shader3D::SetupDescriptorSet(VulkanBase* vulkanBase, IRenderable* renderabl
 	{
 		imageInfos[index].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		imageInfos[index].imageView = vulkanBase->GetTextureImageViews()[renderable->GetRenderID()][index];
-		imageInfos[index].sampler = vulkanBase->GetTextureSampler();
+		imageInfos[index].sampler = vulkanBase->GetTextureSampler(index);
 	}
 
 	std::array<VkWriteDescriptorSet, 2> descriptorWrites{};

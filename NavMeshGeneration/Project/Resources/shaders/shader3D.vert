@@ -7,8 +7,6 @@ layout(binding = 0) uniform UniformBufferObject
     mat4 proj;
 
     int useNormalMap;
-    vec3 cameraPos;
-
 } ubo;
 
 layout(location = 0) in vec3 inPosition;
@@ -36,13 +34,13 @@ void main()
     fragTexCoord = inTexCoord;
     fragTangent = (ubo.model * vec4(inTangent, 0)).rgb;
     fragBitangent = (ubo.model * vec4(inBitangent, 0)).rgb;
-    fragPos = inPosition;
-    fragCameraPos = ubo.cameraPos;
+    fragPos = (ubo.model * vec4(inPosition, 1.0)).xyz;
 
     // Extract the camera position from the view matrix
-    mat3 viewRotMat = mat3(ubo.view);        // Extract rotation part of view matrix
-    vec3 viewTrans = vec3(ubo.view[3]);      // Extract translation part of view matrix
-
+    mat3 rotation = mat3(ubo.view);
+    rotation = transpose(rotation);
+    vec3 translation = vec3(ubo.view[3][0], ubo.view[3][1], ubo.view[3][2]);
+    fragCameraPos = -rotation * translation;
 
     fragUseNormalMap = ubo.useNormalMap;
 }

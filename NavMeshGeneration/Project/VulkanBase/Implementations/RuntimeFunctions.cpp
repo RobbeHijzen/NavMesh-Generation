@@ -154,7 +154,6 @@ void VulkanBase::UpdateUniformBuffer(IRenderable* renderable, uint32_t instanceI
 	ubo.proj = m_Camera->projectionMatrix;
 
 	ubo.useNormalMap = renderable->UseNormalMap();
-	ubo.cameraPos = m_Camera->origin;
 
 	memcpy(m_UniformBuffersMapped[renderable->GetRenderID()][instanceID], &ubo, sizeof(ubo));
 }

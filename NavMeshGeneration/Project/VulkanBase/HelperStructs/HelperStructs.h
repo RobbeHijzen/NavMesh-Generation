@@ -29,7 +29,6 @@ struct ShaderUBO
 	glm::mat4 proj; 
 
 	int useNormalMap{ 0 };
-	glm::vec3 cameraPos{};
 };
 
 struct AABB2D

@@ -10,7 +10,7 @@ layout(location = 2) in vec3 fragTangent;
 layout(location = 3) in vec3 fragBitangent;
 layout(location = 4) in vec3 fragPos;
 
-layout(location = 5) in vec3 cameraPos;
+layout(location = 5) in vec3 fragCameraPos;
 
 layout(location = 6) flat in int useNormalMap;
 
@@ -114,7 +114,7 @@ void main()
 
     vec3 ambient = G_AmbientIntensity * albedo.rgb;
     float cosineLaw = max(dot(normal, G_SunLightDirection), 0);
-    vec3 viewDir = normalize(fragPos - cameraPos); // Camera direction
+    vec3 viewDir = normalize(fragPos - fragCameraPos); // Camera direction
 
     vec3 radiance = GetRadiance(G_SunLightColor, G_SunLightIntensity);
     vec3 brdf = GetBRDF(normal, -G_SunLightDirection, viewDir, albedo.rgb, metallic, roughness);

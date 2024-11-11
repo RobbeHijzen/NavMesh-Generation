@@ -75,14 +75,13 @@ static uint32_t GetDrawCount(Scene* scene)
 
 void VulkanBase::CreateDescriptorPool()
 {
-	uint32_t drawCount{ GetDrawCount(m_Scene) };
+	uint32_t drawCount{ GetDrawCount(m_Scene)};
 
 	std::array<VkDescriptorPoolSize, 2> poolSizes{};
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = drawCount;
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	poolSizes[1].descriptorCount = drawCount;
-
+	poolSizes[1].descriptorCount = drawCount * m_TexturesAmount ;
 
 	VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -112,7 +111,8 @@ void VulkanBase::CreateDescriptorSets()
 			allocInfo.descriptorSetCount = 1;
 			allocInfo.pSetLayouts = &m_DescriptorSetLayout;
 
-			if (vkAllocateDescriptorSets(m_Device, &allocInfo, &m_MeshDescriptorSets[renderable->GetRenderID()][0]) != VK_SUCCESS)
+			VkResult result = vkAllocateDescriptorSets(m_Device, &allocInfo, &m_MeshDescriptorSets[renderable->GetRenderID()][0]);
+			if (result != VK_SUCCESS)
 			{
 				throw std::runtime_error("failed to allocate descriptor sets!");
 			}

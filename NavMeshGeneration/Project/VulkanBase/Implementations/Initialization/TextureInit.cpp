@@ -71,9 +71,9 @@ void VulkanBase::CreateTextureImage(const std::string& imagePath, uint32_t rende
         m_TextureImages[renderID][imageID], m_TextureImagesMemory[renderID][imageID]);
 
 
-    TransitionImageLayout(m_TextureImages[renderID][imageID], VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    TransitionImageLayout(m_TextureImages[renderID][imageID], imageSamplingFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     CopyBufferToImage(stagingBuffer, m_TextureImages[renderID][imageID], static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-    TransitionImageLayout(m_TextureImages[renderID][imageID], VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    TransitionImageLayout(m_TextureImages[renderID][imageID], imageSamplingFormat, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
     vkFreeMemory(m_Device, stagingBufferMemory, nullptr);
@@ -226,7 +226,13 @@ void VulkanBase::CreateTextureImageViews()
     }
 }
 
-void VulkanBase::CreateTextureSampler()
+void VulkanBase::CreateTextureSamplers()
+{
+    m_TextureSamplers.resize(1);
+    CreateTextureSampler(0, VK_FILTER_LINEAR);
+}
+
+void VulkanBase::CreateTextureSampler(int samplerIndex, VkFilter filter)
 {
     VkPhysicalDeviceProperties properties{};
     vkGetPhysicalDeviceProperties(m_PhysicalDevice, &properties);
@@ -255,7 +261,7 @@ void VulkanBase::CreateTextureSampler()
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
 
-    if (vkCreateSampler(m_Device, &samplerInfo, nullptr, &m_TextureSampler) != VK_SUCCESS) 
+    if (vkCreateSampler(m_Device, &samplerInfo, nullptr, &m_TextureSamplers[samplerIndex]) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create texture sampler!");
     }

@@ -56,7 +56,7 @@ public:
 	auto GetUniformBuffers() const { return m_UniformBuffers; }
 
 	auto GetTextureImageViews() const { return m_TextureImageViews; }
-	auto GetTextureSampler() const { return m_TextureSampler; }
+	auto GetTextureSampler(int textureIndex) const { return m_TextureSamplers[0]; }
 
 	auto GetMeshDescriptorSets() const { return m_MeshDescriptorSets; }
 
@@ -122,7 +122,7 @@ private:
 		// Textures setup
 		CreateTextureImages();
 		CreateTextureImageViews();
-		CreateTextureSampler();
+		CreateTextureSamplers();
 
 		// Uniform buffer setup
 		CreateUnfiformBuffers();
@@ -174,7 +174,10 @@ private:
 	void Cleanup()
 	{
 		// Texture Images cleanup
-		vkDestroySampler(m_Device, m_TextureSampler, nullptr);
+		for (auto& textureSampler : m_TextureSamplers)
+		{
+			vkDestroySampler(m_Device, textureSampler, nullptr);
+		}
 		for (auto& textureImageView : m_TextureImageViews)
 		{
 			for (auto& imageView : textureImageView)
@@ -432,7 +435,7 @@ private:
 	std::vector<std::vector<VkImage>> m_TextureImages;
 	std::vector<std::vector<VkDeviceMemory>> m_TextureImagesMemory;
 
-	VkSampler m_TextureSampler;
+	std::vector<VkSampler> m_TextureSamplers{};
 
 	void CreateTextureImages();
 	void CreateTextureImage(const std::string& imagePath, uint32_t renderID, uint32_t imageID, VkFormat imageSamplingFormat);
@@ -440,7 +443,8 @@ private:
 	void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
 					 VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 	void CreateTextureImageViews();
-	void CreateTextureSampler();
+	void CreateTextureSamplers();
+	void CreateTextureSampler(int samplerIndex, VkFilter filter);
 
 	void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);

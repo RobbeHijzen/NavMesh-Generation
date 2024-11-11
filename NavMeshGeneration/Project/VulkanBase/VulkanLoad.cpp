@@ -8,7 +8,7 @@ void VulkanBase::LoadScene()
 	m_Scene->AddObject(plane);
 	
 	
-	// Cubes
+	//// Cubes
 	auto cube01{ new Mesh("Resources/objs/cube.obj", "Resources/texs/gray.png", "", "", "", { -700, 0, 0 }, {0, 0, 0}, {0.5f, 6, 10})};
 	auto cube02{ new Mesh("Resources/objs/cube.obj", "Resources/texs/gray.png", "", "", "", { -500, 0, 500 }, { 0, 0, 0 }, {5, 6, 0.5f}) };
 	auto cube03{ new Mesh("Resources/objs/cube.obj", "Resources/texs/gray.png", "", "", "", { 0, 0, 0 }, { 0, 0, 0 }, {3, 2, 3}) };
