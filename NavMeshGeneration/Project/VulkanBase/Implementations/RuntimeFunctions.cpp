@@ -89,7 +89,7 @@ void VulkanBase::RecordRenderPass(uint32_t imageIndex)
 
 		if (!renderable->IsInstanceable())
 		{
-			UpdateUniformBuffer(renderable->GetRenderID(), 0, renderable->GetModelMatrix());
+			UpdateUniformBuffer(renderable, 0, renderable->GetModelMatrix());
 
 			BindPipelineInfo(&m_GraphicsPipelines[int(renderable->GetPipelineID())]);
 			BindVertexIndexBuffers(renderable->GetRenderID(), renderable->GetRenderID());
@@ -102,7 +102,7 @@ void VulkanBase::RecordRenderPass(uint32_t imageIndex)
 			int instanceID{};
 			for (const auto& modelMatrix : renderable->GetModelMatrices())
 			{
-				UpdateUniformBuffer(renderable->GetRenderID(), instanceID, modelMatrix);
+				UpdateUniformBuffer(renderable, instanceID, modelMatrix);
 
 				BindPipelineInfo(&m_GraphicsPipelines[int(renderable->GetPipelineID())]);
 				BindVertexIndexBuffers(renderable->GetRenderID(), renderable->GetRenderID());
@@ -146,13 +146,16 @@ void VulkanBase::BindVertexIndexBuffers(uint32_t vertexBufferIndex, uint32_t ind
 	vkCmdBindIndexBuffer(m_CommandBuffer, m_IndexBuffers[indexBufferIndex], 0, VK_INDEX_TYPE_UINT32);
 }
 
-void VulkanBase::UpdateUniformBuffer(uint32_t meshIndex, uint32_t instanceID, glm::mat4 meshModelMatrix)
+void VulkanBase::UpdateUniformBuffer(IRenderable* renderable, uint32_t instanceID, glm::mat4 meshModelMatrix)
 {
-	UniformBufferObject ubo{};
+	ShaderUBO ubo{};
 	ubo.model = meshModelMatrix;
 	ubo.view = m_Camera->viewMatrix;
 	ubo.proj = m_Camera->projectionMatrix;
 
-	memcpy(m_UniformBuffersMapped[meshIndex][instanceID], &ubo, sizeof(ubo));
+	ubo.useNormalMap = renderable->UseNormalMap();
+	ubo.cameraPos = m_Camera->origin;
+
+	memcpy(m_UniformBuffersMapped[renderable->GetRenderID()][instanceID], &ubo, sizeof(ubo));
 }
 

@@ -29,7 +29,7 @@ public:
 	virtual VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyStateInfo() override;
 	
 	virtual VkShaderModule CreateShaderModule(const VkDevice& m_Device, const std::vector<char>& code) override;
-	virtual std::vector<VkDescriptorSetLayoutBinding> CreateDescriptorSetLayoutBindings() override;
+	virtual std::vector<VkDescriptorSetLayoutBinding> CreateDescriptorSetLayoutBindings(VulkanBase* vulkanBase) override;
 
 	virtual void SetupDescriptorSet(VulkanBase* vulkanBase, IRenderable* renderable, uint32_t instanceID) override;
 

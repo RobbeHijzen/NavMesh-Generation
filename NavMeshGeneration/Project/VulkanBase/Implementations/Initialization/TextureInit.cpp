@@ -10,43 +10,74 @@ void VulkanBase::CreateTextureImages()
     
     for (const auto& renderable : m_Scene->GetRenderables())
     {
-        // Loads the texture from resources
-        int texWidth, texHeight, texChannels;
-        stbi_uc* pixels = stbi_load(renderable->GetDiffuseString().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-        VkDeviceSize imageSize = texWidth * texHeight * 4;
-        
-        if (!pixels)
-        {
-            throw std::runtime_error("failed to load texture image!");
-        }
-        
-        // Create the staging buffer
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-        
-        CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            stagingBuffer, stagingBufferMemory);
-        
-        // Map the pixels-info onto the buffer
-        void* data;
-        vkMapMemory(m_Device, stagingBufferMemory, 0, imageSize, 0, &data);
-        memcpy(data, pixels, static_cast<size_t>(imageSize));
-        vkUnmapMemory(m_Device, stagingBufferMemory);
-        
-        stbi_image_free(pixels);
-        
-        CreateImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-                    m_TextureImages[renderable->GetRenderID()], m_TextureImagesMemory[renderable->GetRenderID()]);
-        
-        
-        TransitionImageLayout(m_TextureImages[renderable->GetRenderID()], VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-        CopyBufferToImage(stagingBuffer, m_TextureImages[renderable->GetRenderID()], static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-        TransitionImageLayout(m_TextureImages[renderable->GetRenderID()], VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-        
-        vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
-        vkFreeMemory(m_Device, stagingBufferMemory, nullptr);
-        
+        m_TextureImages[renderable->GetRenderID()].resize(m_TexturesAmount);
+        m_TextureImagesMemory[renderable->GetRenderID()].resize(m_TexturesAmount);
+        std::string albedoString{ renderable->GetAlbedoString() };
+        std::string metallicString{ renderable->GetMetallicString() };
+        std::string roughnessString{ renderable->GetRoughnessString() };
+
+        if (!albedoString.empty())
+            CreateTextureImage(albedoString, renderable->GetRenderID(), 0, VK_FORMAT_R8G8B8A8_SRGB);
+        else
+            CreateTextureImage("Resources/texs/white.png", renderable->GetRenderID(), 0, VK_FORMAT_R8G8B8A8_SRGB);
+
+        if (!metallicString.empty())
+            CreateTextureImage(metallicString, renderable->GetRenderID(), 1, VK_FORMAT_R8G8B8A8_UNORM);
+        else
+            CreateTextureImage("Resources/texs/black.png", renderable->GetRenderID(), 1, VK_FORMAT_R8G8B8A8_UNORM);
+
+        if (!roughnessString.empty())
+            CreateTextureImage(roughnessString, renderable->GetRenderID(), 2, VK_FORMAT_R8G8B8A8_UNORM);
+        else
+            CreateTextureImage("Resources/texs/white.png", renderable->GetRenderID(), 2, VK_FORMAT_R8G8B8A8_UNORM);
+
+
+        if (renderable->UseNormalMap())
+            CreateTextureImage(renderable->GetNormalMapString(), renderable->GetRenderID(), 3, VK_FORMAT_R8G8B8A8_UNORM);
+        else
+            CreateTextureImage("Resources/texs/black.png", renderable->GetRenderID(), 3, VK_FORMAT_R8G8B8A8_UNORM);
+
     }
+}
+
+void VulkanBase::CreateTextureImage(const std::string& imagePath, uint32_t renderID, uint32_t imageID, VkFormat imageSamplingFormat)
+{
+    // Loads the texture from resources
+    int texWidth, texHeight, texChannels;
+    stbi_uc* pixels = stbi_load(imagePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+    if (!pixels)
+    {
+        throw std::runtime_error("failed to load texture image!");
+    }
+
+    // Create the staging buffer
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        stagingBuffer, stagingBufferMemory);
+
+    // Map the pixels-info onto the buffer
+    void* data;
+    vkMapMemory(m_Device, stagingBufferMemory, 0, imageSize, 0, &data);
+    memcpy(data, pixels, static_cast<size_t>(imageSize));
+    vkUnmapMemory(m_Device, stagingBufferMemory);
+
+    stbi_image_free(pixels);
+
+    CreateImage(texWidth, texHeight, imageSamplingFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        m_TextureImages[renderID][imageID], m_TextureImagesMemory[renderID][imageID]);
+
+
+    TransitionImageLayout(m_TextureImages[renderID][imageID], VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    CopyBufferToImage(stagingBuffer, m_TextureImages[renderID][imageID], static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+    TransitionImageLayout(m_TextureImages[renderID][imageID], VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
+    vkFreeMemory(m_Device, stagingBufferMemory, nullptr);
+
 }
 
 void VulkanBase::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
@@ -178,9 +209,20 @@ void VulkanBase::CreateTextureImageViews()
 {
     m_TextureImageViews.resize(m_TextureImages.size());
 
-    for (size_t index{}; index < m_TextureImages.size(); ++index)
+    for (size_t i{}; i < m_TextureImages.size(); ++i)
     {
-        m_TextureImageViews[index] = CreateImageView(m_TextureImages[index], VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+        if (m_TextureImages[i].empty()) continue;
+
+        // Albedo
+        const auto& textureImage{ m_TextureImages[i][0]};
+        m_TextureImageViews[i].emplace_back(CreateImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT));
+
+
+        for (int j{ 1 }; j < m_TextureImages[i].size(); ++j)
+        {
+            const auto& textureImage{ m_TextureImages[i][j]};
+            m_TextureImageViews[i].emplace_back(CreateImageView(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT));
+        }
     }
 }
 

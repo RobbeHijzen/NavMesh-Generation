@@ -17,8 +17,12 @@ public:
 	virtual void Render(VkCommandBuffer buffer) const = 0;
 
 	virtual PipelinesEnum GetPipelineID() const = 0;
-	virtual std::string GetDiffuseString() const = 0;
 
+	virtual std::string GetAlbedoString() const = 0;
+	virtual std::string GetMetallicString() const { return ""; }
+	virtual std::string GetRoughnessString() const { return ""; }
+	virtual std::string GetNormalMapString() const { return ""; }
+	virtual bool UseNormalMap() const { return false; }
 	
 	virtual bool IsHidden() const { return false; }
 	virtual bool IsInstanceable() const { return false; }

@@ -60,7 +60,10 @@ private:
 	virtual void Render(VkCommandBuffer buffer) const override { vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0); }
 
 	virtual PipelinesEnum GetPipelineID() const override { return PipelinesEnum::opacity; }
-	virtual std::string GetDiffuseString() const override { return "Resources/texs/Green.png"; }
+
+	virtual std::string GetAlbedoString() const override { return "Resources/texs/Green.png"; }
+	virtual std::string GetMetallicString() const override { return ""; }
+	virtual std::string GetRoughnessString() const override { return ""; }
 
 	virtual std::vector<glm::mat4> GetModelMatrices() const override { return m_ModelMatrices; }
 	virtual bool IsInstanceable() const override { return false; }

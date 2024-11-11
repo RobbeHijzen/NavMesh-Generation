@@ -2,7 +2,7 @@
 
 void VulkanBase::CreateDescriptorSetLayouts()
 {
-	auto bindings{ m_Shader3D->CreateDescriptorSetLayoutBindings() };
+	auto bindings{ m_Shader3D->CreateDescriptorSetLayoutBindings(this) };
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -21,7 +21,7 @@ void VulkanBase::CreateUnfiformBuffers()
 	m_UniformBuffers.resize(m_Scene->GetRenderablesAmount());
 	m_UniformBuffersMemory.resize(m_Scene->GetRenderablesAmount());
 
-	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+	VkDeviceSize bufferSize = sizeof(ShaderUBO);
 
 	for (auto renderable : m_Scene->GetRenderables())
 	{
@@ -132,7 +132,7 @@ void VulkanBase::CreateDescriptorSets()
 				allocInfo.descriptorPool = m_DescriptorPool;
 				allocInfo.descriptorSetCount = 1;
 				allocInfo.pSetLayouts = &m_DescriptorSetLayout;
-				
+		
 				if (vkAllocateDescriptorSets(m_Device, &allocInfo, &m_MeshDescriptorSets[renderable->GetRenderID()][instanceID]) != VK_SUCCESS)
 				{
 					throw std::runtime_error("failed to allocate descriptor sets!");

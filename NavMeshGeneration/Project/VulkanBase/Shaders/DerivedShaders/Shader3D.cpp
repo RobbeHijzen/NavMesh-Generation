@@ -70,7 +70,7 @@ VkShaderModule Shader3D::CreateShaderModule(const VkDevice& m_Device, const std:
 	return shaderModule;
 }
 
-std::vector<VkDescriptorSetLayoutBinding> Shader3D::CreateDescriptorSetLayoutBindings()
+std::vector<VkDescriptorSetLayoutBinding> Shader3D::CreateDescriptorSetLayoutBindings(VulkanBase* vulkanBase)
 {
 	VkDescriptorSetLayoutBinding uboLayoutBinding{};
 	uboLayoutBinding.binding = 0;
@@ -80,7 +80,7 @@ std::vector<VkDescriptorSetLayoutBinding> Shader3D::CreateDescriptorSetLayoutBin
 
 	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
 	samplerLayoutBinding.binding = 1;
-	samplerLayoutBinding.descriptorCount = 1;
+	samplerLayoutBinding.descriptorCount = vulkanBase->GetAmountOfTextures();
 	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	samplerLayoutBinding.pImmutableSamplers = nullptr;
 	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -93,13 +93,17 @@ void Shader3D::SetupDescriptorSet(VulkanBase* vulkanBase, IRenderable* renderabl
 	VkDescriptorBufferInfo bufferInfo{};
 	bufferInfo.buffer = vulkanBase->GetUniformBuffers()[renderable->GetRenderID()][instanceID];
 	bufferInfo.offset = 0;
-	bufferInfo.range = sizeof(UniformBufferObject);
+	bufferInfo.range = sizeof(ShaderUBO);
 
-	VkDescriptorImageInfo imageInfo{};
-	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	imageInfo.imageView = vulkanBase->GetTextureImageViews()[renderable->GetRenderID()];
-	imageInfo.sampler = vulkanBase->GetTextureSampler();
+	// Textures
+	std::vector<VkDescriptorImageInfo> imageInfos(vulkanBase->GetAmountOfTextures());
 
+	for (int index{}; index < imageInfos.size(); ++index)
+	{
+		imageInfos[index].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imageInfos[index].imageView = vulkanBase->GetTextureImageViews()[renderable->GetRenderID()][index];
+		imageInfos[index].sampler = vulkanBase->GetTextureSampler();
+	}
 
 	std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
@@ -116,8 +120,8 @@ void Shader3D::SetupDescriptorSet(VulkanBase* vulkanBase, IRenderable* renderabl
 	descriptorWrites[1].dstBinding = 1;
 	descriptorWrites[1].dstArrayElement = 0;
 	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	descriptorWrites[1].descriptorCount = 1;
-	descriptorWrites[1].pImageInfo = &imageInfo;
+	descriptorWrites[1].descriptorCount = static_cast<uint32_t>(imageInfos.size());
+	descriptorWrites[1].pImageInfo = imageInfos.data(); 
 
 	vkUpdateDescriptorSets(vulkanBase->GetDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }

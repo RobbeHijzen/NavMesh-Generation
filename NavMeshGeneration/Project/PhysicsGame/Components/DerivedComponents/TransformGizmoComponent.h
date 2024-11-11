@@ -35,7 +35,7 @@ private:
 	void SetRenderID(uint32_t index) override { m_RenderID = index; }
 	
 	PipelinesEnum GetPipelineID() const override { return m_PipelineID; }
-	std::string GetDiffuseString() const { return "Resources/texs/Manny_BaseColor.png"; };
+	std::string GetAlbedoString() const { return "Resources/texs/Manny_BaseColor.png"; };
 	
 	void Render(VkCommandBuffer buffer) const override;
 	

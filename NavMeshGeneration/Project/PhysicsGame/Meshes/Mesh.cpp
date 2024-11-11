@@ -4,9 +4,14 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-Mesh::Mesh(std::string objPath, std::string diffuseString, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale)
-    : m_DiffuseString{diffuseString}
+Mesh::Mesh(std::string objPath, std::string albedoString, std::string metallicString, std::string roughnessString, std::string normalMapString, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale)
+    : m_AlbedoString{ albedoString }
+    , m_MetallicString{ metallicString }
+    , m_RoughnessString{ roughnessString }
+    , m_NormalMapString{ normalMapString }
 {
+    if (m_NormalMapString != "") m_UseNormalMap = true;
+
     ParseOBJ(objPath, m_Vertices, m_Indices);
 
     m_WorldPos = translation;

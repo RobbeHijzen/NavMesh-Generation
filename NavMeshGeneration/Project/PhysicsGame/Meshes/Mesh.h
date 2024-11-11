@@ -20,7 +20,10 @@ class Mesh final : public Object, public IRenderable
 {
 public:
 	Mesh(std::string objPath, 
-		 std::string diffuseString, 
+		 std::string albedoString, 
+		 std::string metallicString, 
+		 std::string roughnessString, 
+		 std::string normalMapString = "",
 		 glm::vec3 translation = glm::vec3{0.f, 0.f, 0.f},
 		 glm::vec3 rotation = glm::vec3{0.f, 0.f, 0.f},
 		 glm::vec3 scale = glm::vec3{1.f, 1.f, 1.f});
@@ -38,7 +41,12 @@ public:
 	void SetRenderID(uint32_t index) override { m_RenderID = index; }
 	PipelinesEnum GetPipelineID() const override { return m_PipelineID; }
 
-	std::string GetDiffuseString() const override { return m_DiffuseString; }
+	std::string GetAlbedoString() const override { return m_AlbedoString; }
+	std::string GetMetallicString() const override { return m_MetallicString; }
+	std::string GetRoughnessString() const override { return m_RoughnessString; }
+	std::string GetNormalMapString() const override { return m_NormalMapString; }
+
+	bool UseNormalMap() const override { return m_UseNormalMap; }
 
 	void Rotate(glm::vec3 addedRot);
 	void Scale(glm::vec3 addedScale);
@@ -55,8 +63,13 @@ private:
 	std::vector<Vertex> m_Vertices{};
 
 	std::optional<uint32_t> m_RenderID{};
-	std::string m_DiffuseString{};
 	PipelinesEnum m_PipelineID{ PipelinesEnum::regular };
+
+	std::string m_AlbedoString{};
+	std::string m_MetallicString{};
+	std::string m_RoughnessString{};
+	std::string m_NormalMapString{};
+	bool m_UseNormalMap{ false };
 
 	//----------
 	// Transformation Handling

@@ -45,7 +45,7 @@ public:
 	virtual VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyStateInfo() = 0;
 
 	virtual VkShaderModule CreateShaderModule(const VkDevice& m_Device, const std::vector<char>& code) = 0;
-	virtual std::vector<VkDescriptorSetLayoutBinding> CreateDescriptorSetLayoutBindings() = 0;
+	virtual std::vector<VkDescriptorSetLayoutBinding> CreateDescriptorSetLayoutBindings(VulkanBase* vulkanBase) = 0;
 
 	virtual void SetupDescriptorSet(VulkanBase* vulkanBase, IRenderable* renderable, uint32_t instanceID) = 0;
 

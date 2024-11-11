@@ -22,13 +22,15 @@ struct SwapChainSupportDetails
 	std::vector<VkPresentModeKHR> presentModes;
 };
 
-struct UniformBufferObject
+struct ShaderUBO
 {
 	glm::mat4 model;
 	glm::mat4 view;
-	glm::mat4 proj;
-};
+	glm::mat4 proj; 
 
+	int useNormalMap{ 0 };
+	glm::vec3 cameraPos{};
+};
 
 struct AABB2D
 {

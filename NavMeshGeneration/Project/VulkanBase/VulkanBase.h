@@ -60,6 +60,7 @@ public:
 
 	auto GetMeshDescriptorSets() const { return m_MeshDescriptorSets; }
 
+	int GetAmountOfTextures() const { return m_TexturesAmount; }
 
 private:
 
@@ -176,15 +177,24 @@ private:
 		vkDestroySampler(m_Device, m_TextureSampler, nullptr);
 		for (auto& textureImageView : m_TextureImageViews)
 		{
-			vkDestroyImageView(m_Device, textureImageView, nullptr);
+			for (auto& imageView : textureImageView)
+			{
+				vkDestroyImageView(m_Device, imageView, nullptr);
+			}
 		}
 		for (auto& textureImage : m_TextureImages)
 		{
-			vkDestroyImage(m_Device, textureImage, nullptr);
+			for (auto& image : textureImage)
+			{
+				vkDestroyImage(m_Device, image, nullptr);
+			}
 		}
 		for (auto& textureImageMemory : m_TextureImagesMemory)
 		{
-			vkFreeMemory(m_Device, textureImageMemory, nullptr);
+			for (auto& imageMemory : textureImageMemory)
+			{
+				vkFreeMemory(m_Device, imageMemory, nullptr);
+			}
 		}
 		
 
@@ -412,17 +422,21 @@ private:
 	void CreateDescriptorSets();
 	void CreateUnfiformBuffers();
 
-	void UpdateUniformBuffer(uint32_t meshIndex, uint32_t instanceID, glm::mat4 meshModelMatrix);
+	void UpdateUniformBuffer(IRenderable* renderable, uint32_t instanceID, glm::mat4 meshModelMatrix);
 	void CreateDescriptorPool();
 
 	// Texture
-	std::vector<VkImage> m_TextureImages;
-	std::vector<VkImageView> m_TextureImageViews;
-	std::vector<VkDeviceMemory> m_TextureImagesMemory;
+	int m_TexturesAmount{ 4 };
+
+	std::vector<std::vector<VkImageView>> m_TextureImageViews;
+	std::vector<std::vector<VkImage>> m_TextureImages;
+	std::vector<std::vector<VkDeviceMemory>> m_TextureImagesMemory;
 
 	VkSampler m_TextureSampler;
 
 	void CreateTextureImages();
+	void CreateTextureImage(const std::string& imagePath, uint32_t renderID, uint32_t imageID, VkFormat imageSamplingFormat);
+
 	void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
 					 VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 	void CreateTextureImageViews();
