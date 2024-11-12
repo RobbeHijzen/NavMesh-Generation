@@ -62,49 +62,55 @@ static bool ParseOBJ(const std::string& filename, std::vector<Vertex>& vertices,
 			Vertex vertex{};
 			size_t iPosition, iTexCoord, iNormal;
 
-			uint32_t tempIndices[3];
-			for (size_t iFace = 0; iFace < 3; ++iFace)
+			std::vector<uint32_t> tempIndices;
+			while (true)
 			{
-				// OBJ format uses 1-based arrays
+				// Read the position index
 				file >> iPosition;
-				vertex.pos = positions[iPosition - 1];
+				vertex.pos = positions[iPosition - 1];  // OBJ is 1-based, adjust to 0-based
 
-				if ('/' == file.peek())//is next in buffer ==  '/' ?
+				if ('/' == file.peek()) 
 				{
-					file.ignore();//read and ignore one element ('/')
+					file.ignore();  // Ignore the '/'
 
-					if ('/' != file.peek())
-					{
-						// Optional texture coordinate
+					if ('/' != file.peek()) 
+					{ 
 						file >> iTexCoord;
 						vertex.texCoord = UVs[iTexCoord - 1];
 					}
 
-					if ('/' == file.peek())
-					{
+					if ('/' == file.peek()) 
+					{ 
 						file.ignore();
-
-						// Optional vertex normal
 						file >> iNormal;
 						vertex.normal = normals[iNormal - 1];
 					}
 				}
 
-				vertices.push_back(vertex);
-				tempIndices[iFace] = uint32_t(vertices.size()) - 1;
-				indices.push_back(uint32_t(vertices.size()) - 1);
+				// Add the vertex to the list of vertices
+				vertices.emplace_back(vertex);
+				tempIndices.push_back(uint32_t(vertices.size()) - 1);
+
+				// Check if end of face definition (newline or end of file)
+				if (file.peek() == '\n' || file.eof())
+				{
+					break;
+				}
 			}
 
-			indices.push_back(tempIndices[0]);
-			if (flipAxisAndWinding)
+			for (size_t index{ 1 }; index < tempIndices.size() - 1; ++index)
 			{
-				indices.push_back(tempIndices[2]);
-				indices.push_back(tempIndices[1]);
-			}
-			else
-			{
-				indices.push_back(tempIndices[1]);
-				indices.push_back(tempIndices[2]);
+				indices.emplace_back(tempIndices[0]);
+				if (flipAxisAndWinding)
+				{
+					indices.emplace_back(tempIndices[index + 1]);
+					indices.emplace_back(tempIndices[index]);
+				}
+				else
+				{
+					indices.emplace_back(tempIndices[index]);
+					indices.emplace_back(tempIndices[index + 1]);
+				}
 			}
 		}
 		//read till end of line and ignore all remaining chars

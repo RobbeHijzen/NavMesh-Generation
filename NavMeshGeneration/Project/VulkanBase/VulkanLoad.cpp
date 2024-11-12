@@ -2,34 +2,17 @@
 
 void VulkanBase::LoadScene()
 {
-	// Plane
-	auto plane{ new Mesh("Resources/objs/Plane.obj", "Resources/texs/Ground/Plane_BaseColor.png", "", "")};
-	plane->AddComponent(std::make_shared<CollisionComponent>(plane, true, 0));
-	m_Scene->AddObject(plane);
-	
-	
-	//// Cubes
-	auto cube01{ new Mesh("Resources/objs/cube.obj", "Resources/texs/gray.png", "", "", "", { -700, 0, 0 }, {0, 0, 0}, {0.5f, 6, 10})};
-	auto cube02{ new Mesh("Resources/objs/cube.obj", "Resources/texs/gray.png", "", "", "", { -500, 0, 500 }, { 0, 0, 0 }, {5, 6, 0.5f}) };
-	auto cube03{ new Mesh("Resources/objs/cube.obj", "Resources/texs/gray.png", "", "", "", { 0, 0, 0 }, { 0, 0, 0 }, {3, 2, 3}) };
-	auto cube04{ new Mesh("Resources/objs/cube.obj", "Resources/texs/gray.png", "", "", "", { 700, 220, 300 }, { 0, 0, 0 }, {3, 0.5, 3}) };
-	
-	cube01->AddComponent(std::make_shared<CollisionComponent>(cube01, true, 0));
-	cube02->AddComponent(std::make_shared<CollisionComponent>(cube02, true, 0));
-	cube03->AddComponent(std::make_shared<CollisionComponent>(cube03, true, 0));
-	cube04->AddComponent(std::make_shared<CollisionComponent>(cube04, true, 0));
-	
-	m_Scene->AddObject(cube01);
-	m_Scene->AddObject(cube02);
-	m_Scene->AddObject(cube03);
-	m_Scene->AddObject(cube04);
-
-
 	// Door
-	auto doorBot{ new Mesh("Resources/objs/Door/Door.obj", "Resources/texs/Door/Door_Albedo.png", "Resources/texs/Door/Door_Metallic.png", "Resources/texs/Door/Door_Roughness.png", "Resources/texs/Door/Door_Normal.png", { -200, 200, 0 })};
-	doorBot->AddComponent(std::make_shared<CollisionComponent>(doorBot, true, 0));
+	auto door{ new Mesh("Resources/objs/Door/Door.obj", "Resources/texs/Door/Door_Albedo.png", "Resources/texs/Door/Door_Metallic.png", "Resources/texs/Door/Door_Roughness.png", "Resources/texs/Door/Door_Normal.png", { -200, 200, 0 }, {0, -45, 0}) };
+	door->AddComponent(std::make_shared<CollisionComponent>(door, true, 0));
 
-	m_Scene->AddObject(doorBot);
+	m_Scene->AddObject(door);
+
+	// Table
+	auto table{ new Mesh("Resources/objs/Table/Table.obj", "Resources/texs/Table/Table_Albedo.png", "Resources/texs/Table/Table_Metallic.png", "Resources/texs/Table/Table_Roughness.png", "Resources/texs/Table/Table_Normal.png", { 200, 200, 0 }, {0, 180, 0}) };
+	table->AddComponent(std::make_shared<CollisionComponent>(table, true, 0));
+
+	m_Scene->AddObject(table);
 
 	// NavMesh
 	//auto navMeshGenerator{ new NavMeshGenerator(m_Scene)};
