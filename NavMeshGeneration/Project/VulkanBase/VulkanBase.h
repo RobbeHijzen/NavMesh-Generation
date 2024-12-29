@@ -429,7 +429,7 @@ private:
 	void CreateDescriptorPool();
 
 	// Texture
-	int m_TexturesAmount{ 4 };
+	int m_TexturesAmount{ 5 };
 
 	std::vector<std::vector<VkImageView>> m_TextureImageViews;
 	std::vector<std::vector<VkImage>> m_TextureImages;

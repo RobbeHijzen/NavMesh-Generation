@@ -5,6 +5,7 @@
 
 #include "PhysicsGame/Meshes/Mesh.h"
 #include "VulkanBase/HelperStructs/IRenderable.h"
+#include "VulkanBase/Materials/Material.h"
 #include "Object.h"
 #include "Singleton.h"
 
@@ -63,10 +64,28 @@ public:
 		return meshes;
 	}
 
+	Material* CreateMaterial()
+	{
+		Material* mat{ m_Materials.emplace_back(std::make_unique<Material>()).get() };
+		mat->SetMaterialID((uint32_t)(m_Materials.size() - 1));
+		return mat;
+	}
+
+
 	auto GetObjectsAmount() const { return m_Objects.size(); }
 
 	auto GetRenderables() const { return m_Renderables; }
 	auto GetRenderablesAmount() const { return m_Renderables.size(); }
+
+	auto GetMaterials() const 
+	{ 
+		std::vector<Material*> mats{};
+		for (const auto& mat : m_Materials)
+			mats.emplace_back(mat.get());
+
+		return mats;
+	}
+	auto GetMaterialsAmount() const { return m_Materials.size(); }
 
 private:
 
@@ -81,4 +100,6 @@ private:
 
 	std::vector<std::unique_ptr<Object>> m_Objects{};
 	std::vector<IRenderable*> m_Renderables{};
+
+	std::vector<std::unique_ptr<Material>> m_Materials{};
 };

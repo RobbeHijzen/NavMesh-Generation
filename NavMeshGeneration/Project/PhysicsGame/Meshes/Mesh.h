@@ -8,6 +8,7 @@
 
 #include "VulkanBase/Scene/Object.h"
 #include "VulkanBase/HelperStructs/IRenderable.h"
+#include "VulkanBase/Materials/Material.h"
 
 #include "VulkanBase/HelperStructs/VertexInfo.h"
 #include "PhysicsGame/Camera.h"
@@ -19,15 +20,11 @@
 class Mesh final : public Object, public IRenderable
 {
 public:
-	Mesh(std::string objPath, 
-		 std::string albedoString, 
-		 std::string metallicString, 
-		 std::string roughnessString, 
-		 std::string normalMapString = "",
-		 glm::vec3 translation = glm::vec3{0.f, 0.f, 0.f},
-		 glm::vec3 rotation = glm::vec3{0.f, 0.f, 0.f},
-		 glm::vec3 scale = glm::vec3{1.f, 1.f, 1.f});
+	Mesh(std::string objPath);
 
+	//----------
+	// Rendering
+	//----------
 
 	void Render(VkCommandBuffer buffer) const override;
 	void Update(GLFWwindow* window) override;
@@ -41,23 +38,37 @@ public:
 	void SetRenderID(uint32_t index) override { m_RenderID = index; }
 	PipelinesEnum GetPipelineID() const override { return m_PipelineID; }
 
-	std::string GetAlbedoString() const override { return m_AlbedoString; }
-	std::string GetMetallicString() const override { return m_MetallicString; }
-	std::string GetRoughnessString() const override { return m_RoughnessString; }
-	std::string GetNormalMapString() const override { return m_NormalMapString; }
+	void SetMaterial(Material* material) { m_Material = material; }
+	Material* GetMaterial() const override { return m_Material; }
 
-	bool UseNormalMap() const override { return m_UseNormalMap; }
+	//----------
+	// Transformation Handling
+	//----------
 
-	void Rotate(glm::vec3 addedRot);
-	void Scale(glm::vec3 addedScale);
+	void AddPosition(glm::vec3 addedPos);
+	void AddRotation(glm::vec3 addedRot);
+	void AddScale(glm::vec3 addedScale);
+
+	void SetPosition(glm::vec3 newPos);
+	void SetRotation(glm::vec3 newRot);
+	void SetScale(glm::vec3 newScale);
 
 	
 	glm::vec3 GetWorldPosition() const { return m_WorldPos; }
 	glm::vec3 GetWorldRotation() const { return m_WorldRot; }
+	glm::vec3 GetWorldScale() const { return m_WorldScale; }
+
+	//-----------
+	// Movement Handling
+	//-----------
 
 	void SetVelocity(glm::vec3 inputVelocity) { m_Velocity = inputVelocity; }
 
 private:
+
+	// Rendering
+
+	Material* m_Material{ nullptr };
 
 	std::vector<uint32_t> m_Indices{};
 	std::vector<Vertex> m_Vertices{};
@@ -65,36 +76,27 @@ private:
 	std::optional<uint32_t> m_RenderID{};
 	PipelinesEnum m_PipelineID{ PipelinesEnum::regular };
 
-	std::string m_AlbedoString{};
-	std::string m_MetallicString{};
-	std::string m_RoughnessString{};
-	std::string m_NormalMapString{};
-	bool m_UseNormalMap{ false };
-
+	
 	//----------
 	// Transformation Handling
 	//----------
 	glm::mat4 m_ModelMatrix{ glm::mat4{1.f} };
 
-	glm::vec3 m_WorldPos{};
-	glm::vec3 m_BaseRot{};
-	glm::vec3 m_WorldRot{};
-	glm::vec3 m_WorldScale{};
+	glm::vec3 m_WorldPos{0.f, 0.f, 0.f};
+	glm::vec3 m_WorldRot{0.f, 0.f, 0.f};
+	glm::vec3 m_WorldScale{1.f, 1.f, 1.f};
 
 	glm::mat4 m_TranslationMatrix{};
 	glm::mat4 m_RotationMatrix{};
 	glm::mat4 m_ScaleMatrix{};
 
 	void CalculateWorldMatrix();
-	//-----------
 
 	//-----------
 	// Movement Handling
 	//-----------
 	glm::vec3 m_Velocity{};
 
-public:
-	void Translate(glm::vec3 addedPos);
 private:
 
 	// Components

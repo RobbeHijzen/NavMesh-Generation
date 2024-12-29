@@ -4,30 +4,15 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-Mesh::Mesh(std::string objPath, std::string albedoString, std::string metallicString, std::string roughnessString, std::string normalMapString, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale)
-    : m_AlbedoString{ albedoString }
-    , m_MetallicString{ metallicString }
-    , m_RoughnessString{ roughnessString }
-    , m_NormalMapString{ normalMapString }
+Mesh::Mesh(std::string objPath)
 {
-    if (m_NormalMapString != "") m_UseNormalMap = true;
-
     ParseOBJ(objPath, m_Vertices, m_Indices);
 
-    m_WorldPos = translation;
-    m_BaseRot = glm::radians(rotation);
-    m_WorldScale = scale;
-
-    m_TranslationMatrix = glm::translate(glm::mat4{ 1.f }, {m_WorldPos.x, m_WorldPos.y, -m_WorldPos.z});
-    m_RotationMatrix = glm::rotate(glm::mat4{ 1.f }, m_WorldRot.z + m_BaseRot.z, glm::vec3{ 0.f, 0.f, 1.f })
-                     * glm::rotate(glm::mat4{ 1.f }, -m_WorldRot.y - m_BaseRot.y, glm::vec3{ 0.f, 1.f, 0.f })
-                     * glm::rotate(glm::mat4{ 1.f }, m_WorldRot.x + m_BaseRot.x, glm::vec3{ 1.f, 0.f, 0.f });
-    m_ScaleMatrix = glm::scale(glm::mat4{ 1.f }, m_WorldScale);
-
-
     AddObserver(new Observer(GameEvents::ModelMatrixChanged, [&] { this->CalculateWorldMatrix(); }));
-    
-    NotifyObservers(GameEvents::ModelMatrixChanged);
+
+    SetPosition(m_WorldPos);
+    SetRotation(m_WorldRot);
+    SetScale(m_WorldScale);
 }
 
 void Mesh::Render(VkCommandBuffer buffer) const
@@ -39,34 +24,51 @@ void Mesh::Update(GLFWwindow* window)
 {
     Object::Update(window);
 
-    Translate(m_Velocity * Time::GetInstance()->GetDeltaTime());
+    AddPosition(m_Velocity * Time::GetInstance()->GetDeltaTime());
 }
 
-void Mesh::Translate(glm::vec3 addedPos)
+void Mesh::AddPosition(glm::vec3 addedPos)
 {
-    m_WorldPos += addedPos;
+    SetPosition(m_WorldPos + addedPos);
+}
+
+void Mesh::AddRotation(glm::vec3 addedRot)
+{
+    SetPosition(m_WorldPos + addedRot);
+}
+
+void Mesh::AddScale(glm::vec3 addedScale)
+{
+    SetPosition(m_WorldPos + addedScale);
+}
+
+void Mesh::SetPosition(glm::vec3 newPos)
+{
+    m_WorldPos = newPos;
+
     m_TranslationMatrix = glm::translate(glm::mat4{ 1.f }, { m_WorldPos.x, m_WorldPos.y, -m_WorldPos.z });
 
     NotifyObservers(GameEvents::ModelMatrixChanged);
 }
-
-void Mesh::Rotate(glm::vec3 addedRot)
+void Mesh::SetRotation(glm::vec3 newRot)
 {
-    m_WorldRot += addedRot;
-    m_RotationMatrix = glm::rotate(glm::mat4{ 1.f }, m_WorldRot.z + m_BaseRot.z, glm::vec3{ 0.f, 0.f, 1.f })
-                     * glm::rotate(glm::mat4{ 1.f }, -m_WorldRot.y - m_BaseRot.y, glm::vec3{ 0.f, 1.f, 0.f })
-                     * glm::rotate(glm::mat4{ 1.f }, m_WorldRot.x + m_BaseRot.x, glm::vec3{ 1.f, 0.f, 0.f });
+    m_WorldRot = newRot;
+
+    m_RotationMatrix = glm::rotate(glm::mat4{ 1.f }, m_WorldRot.z, glm::vec3{ 0.f, 0.f, 1.f })
+        * glm::rotate(glm::mat4{ 1.f }, -m_WorldRot.y, glm::vec3{ 0.f, 1.f, 0.f })
+        * glm::rotate(glm::mat4{ 1.f }, m_WorldRot.x, glm::vec3{ 1.f, 0.f, 0.f });
 
     NotifyObservers(GameEvents::ModelMatrixChanged);
 }
-
-void Mesh::Scale(glm::vec3 addedScale)
+void Mesh::SetScale(glm::vec3 newScale)
 {
-    m_WorldScale += addedScale;
+    m_WorldScale = newScale;
+
     m_ScaleMatrix = glm::scale(glm::mat4{ 1.f }, m_WorldScale);
 
     NotifyObservers(GameEvents::ModelMatrixChanged);
 }
+
 
 void Mesh::CalculateWorldMatrix()
 {

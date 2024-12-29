@@ -5,38 +5,22 @@
 
 void VulkanBase::CreateTextureImages()
 {
-    m_TextureImages.resize(m_Scene->GetRenderablesAmount());
-    m_TextureImagesMemory.resize(m_Scene->GetRenderablesAmount());
+    m_TextureImages.resize(m_Scene->GetMaterialsAmount());
+    m_TextureImagesMemory.resize(m_Scene->GetMaterialsAmount());
     
-    for (const auto& renderable : m_Scene->GetRenderables())
+    for (const auto material : m_Scene->GetMaterials())
     {
-        m_TextureImages[renderable->GetRenderID()].resize(m_TexturesAmount);
-        m_TextureImagesMemory[renderable->GetRenderID()].resize(m_TexturesAmount);
-        std::string albedoString{ renderable->GetAlbedoString() };
-        std::string metallicString{ renderable->GetMetallicString() };
-        std::string roughnessString{ renderable->GetRoughnessString() };
+        if (!material) continue;
 
-        if (!albedoString.empty())
-            CreateTextureImage(albedoString, renderable->GetRenderID(), 0, VK_FORMAT_R8G8B8A8_SRGB);
-        else
-            CreateTextureImage("Resources/texs/white.png", renderable->GetRenderID(), 0, VK_FORMAT_R8G8B8A8_SRGB);
+        m_TextureImages[material->GetMaterialID()].resize(m_TexturesAmount);
+        m_TextureImagesMemory[material->GetMaterialID()].resize(m_TexturesAmount);
 
-        if (!metallicString.empty())
-            CreateTextureImage(metallicString, renderable->GetRenderID(), 1, VK_FORMAT_R8G8B8A8_UNORM);
-        else
-            CreateTextureImage("Resources/texs/black.png", renderable->GetRenderID(), 1, VK_FORMAT_R8G8B8A8_UNORM);
-
-        if (!roughnessString.empty())
-            CreateTextureImage(roughnessString, renderable->GetRenderID(), 2, VK_FORMAT_R8G8B8A8_UNORM);
-        else
-            CreateTextureImage("Resources/texs/white.png", renderable->GetRenderID(), 2, VK_FORMAT_R8G8B8A8_UNORM);
-
-
-        if (renderable->UseNormalMap())
-            CreateTextureImage(renderable->GetNormalMapString(), renderable->GetRenderID(), 3, VK_FORMAT_R8G8B8A8_UNORM);
-        else
-            CreateTextureImage("Resources/texs/black.png", renderable->GetRenderID(), 3, VK_FORMAT_R8G8B8A8_UNORM);
-
+        CreateTextureImage(material->GetAlbedoString(), material->GetMaterialID(), 0, VK_FORMAT_R8G8B8A8_SRGB);
+        CreateTextureImage(material->GetMetallicString(), material->GetMaterialID(), 1, VK_FORMAT_R8G8B8A8_UNORM);
+        CreateTextureImage(material->GetRoughnessString(), material->GetMaterialID(), 2, VK_FORMAT_R8G8B8A8_UNORM);
+        CreateTextureImage(material->GetOpacityString(), material->GetMaterialID(), 3, VK_FORMAT_R8G8B8A8_UNORM);
+     
+        CreateTextureImage(material->GetNormalString(), material->GetMaterialID(), 4, VK_FORMAT_R8G8B8A8_UNORM);
     }
 }
 

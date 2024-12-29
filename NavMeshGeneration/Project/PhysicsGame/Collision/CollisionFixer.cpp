@@ -124,15 +124,15 @@ void CollisionFixer::HandleCollision(AABB aabb1, AABB aabb2, CollisionComponent*
 		float minDistance{std::min(std::min(distances.first.x, distances.first.y), distances.first.z)};
 		if (minDistance == distances.first.x)
 		{
-			col1->GetOwner()->Translate({ distances.first.x * distances.second.x, 0.f, 0.f });
+			col1->GetOwner()->AddPosition({ distances.first.x * distances.second.x, 0.f, 0.f });
 		}
 		else if (minDistance == distances.first.y)
 		{
-			col1->GetOwner()->Translate({ 0.f, distances.first.y * distances.second.y, 0.f });
+			col1->GetOwner()->AddPosition({ 0.f, distances.first.y * distances.second.y, 0.f });
 		}
 		else if (minDistance == distances.first.z)
 		{
-			col1->GetOwner()->Translate({ 0.f, 0.f, distances.first.z * distances.second.z });
+			col1->GetOwner()->AddPosition({ 0.f, 0.f, distances.first.z * distances.second.z });
 		}
 	}
 	else
@@ -142,18 +142,18 @@ void CollisionFixer::HandleCollision(AABB aabb1, AABB aabb2, CollisionComponent*
 		float minDistance{ std::min(std::min(distances.first.x, distances.first.y), distances.first.z) };
 		if (minDistance == distances.first.x)
 		{
-			col1->GetOwner()->Translate({ distances.first.x * distances.second.x / 2.f, 0.f, 0.f });
-			col2->GetOwner()->Translate({ distances.first.x * distances.second.x / -2.f, 0.f, 0.f });
+			col1->GetOwner()->AddPosition({ distances.first.x * distances.second.x / 2.f, 0.f, 0.f });
+			col2->GetOwner()->AddPosition({ distances.first.x * distances.second.x / -2.f, 0.f, 0.f });
 		}
 		else if (minDistance == distances.first.y)
 		{
-			col1->GetOwner()->Translate({ 0.f, distances.first.y * distances.second.y / 2.f, 0.f });
-			col2->GetOwner()->Translate({ 0.f, distances.first.y * distances.second.y / -2.f, 0.f });
+			col1->GetOwner()->AddPosition({ 0.f, distances.first.y * distances.second.y / 2.f, 0.f });
+			col2->GetOwner()->AddPosition({ 0.f, distances.first.y * distances.second.y / -2.f, 0.f });
 		}
 		else if (minDistance == distances.first.z)
 		{
-			col1->GetOwner()->Translate({ 0.f, 0.f, distances.first.z * distances.second.z / 2.f });
-			col2->GetOwner()->Translate({ 0.f, 0.f, distances.first.z * distances.second.z / -2.f });
+			col1->GetOwner()->AddPosition({ 0.f, 0.f, distances.first.z * distances.second.z / 2.f });
+			col2->GetOwner()->AddPosition({ 0.f, 0.f, distances.first.z * distances.second.z / -2.f });
 		}
 	}
 }

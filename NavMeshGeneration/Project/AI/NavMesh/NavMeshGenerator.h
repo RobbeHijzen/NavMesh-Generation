@@ -10,6 +10,9 @@ public:
 	NavMeshGenerator(Scene* scene);
 	std::vector<NavMeshStructs::VoxelNode> GenerateNavMesh();
 
+	void SetMaterial(Material* material) { m_Material = material; }
+	Material* GetMaterial() const override { return m_Material; }
+
 private:
 
 	AABB m_Boundaries{ {-1000.f, -1000.f, -1000.f}, {1000.f, 1000.f, 1000.f} };
@@ -61,9 +64,7 @@ private:
 
 	virtual PipelinesEnum GetPipelineID() const override { return PipelinesEnum::opacity; }
 
-	virtual std::string GetAlbedoString() const override { return "Resources/texs/Green.png"; }
-	virtual std::string GetMetallicString() const override { return ""; }
-	virtual std::string GetRoughnessString() const override { return ""; }
+	Material* m_Material{};
 
 	virtual std::vector<glm::mat4> GetModelMatrices() const override { return m_ModelMatrices; }
 	virtual bool IsInstanceable() const override { return false; }

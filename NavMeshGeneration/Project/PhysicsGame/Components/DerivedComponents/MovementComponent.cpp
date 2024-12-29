@@ -84,7 +84,7 @@ void MovementComponent::HandleMouseMovement(GLFWwindow* window)
 	m_LastMouseX = static_cast<int>(x);
 
 	// Mouse Movement
-	GetOwner()->Rotate({ 0.f, mouseX * m_RotationSpeed, 0.f });
+	GetOwner()->AddRotation({ 0.f, mouseX * m_RotationSpeed, 0.f });
 }
 
 void MovementComponent::CalculateIsOnGround()

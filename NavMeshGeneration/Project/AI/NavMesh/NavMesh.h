@@ -26,9 +26,8 @@ public:
 
 	virtual PipelinesEnum GetPipelineID() const override { return PipelinesEnum::opacity; }
 
-	virtual std::string GetAlbedoString() const override { return "Resources/texs/Red.png"; }
-	virtual std::string GetMetallicString() const override { return ""; }
-	virtual std::string GetRoughnessString() const override { return ""; }
+	void SetMaterial(Material* material) { m_Material = material; }
+	Material* GetMaterial() const override { return m_Material; }
 
 private:
 
@@ -48,6 +47,8 @@ private:
 	std::vector<uint32_t> m_Indices{};
 
 	std::optional<uint32_t> m_RenderID{};
+
+	Material* m_Material{};
 
 	std::vector<glm::mat4> m_ModelMatrices{};
 

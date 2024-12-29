@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+class Material;
+
 class IRenderable
 {
 public:
@@ -18,12 +20,8 @@ public:
 
 	virtual PipelinesEnum GetPipelineID() const = 0;
 
-	virtual std::string GetAlbedoString() const = 0;
-	virtual std::string GetMetallicString() const { return ""; }
-	virtual std::string GetRoughnessString() const { return ""; }
-	virtual std::string GetNormalMapString() const { return ""; }
-	virtual bool UseNormalMap() const { return false; }
-	
+	virtual Material* GetMaterial() const { return nullptr; }
+
 	virtual bool IsHidden() const { return false; }
 	virtual bool IsInstanceable() const { return false; }
 

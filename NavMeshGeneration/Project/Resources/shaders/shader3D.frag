@@ -1,7 +1,7 @@
 #version 450
 
 
-layout(binding = 1) uniform sampler2D textures[4];
+layout(binding = 1) uniform sampler2D textures[5];
 
 
 layout(location = 0) in vec2 fragTexCoord;
@@ -37,7 +37,7 @@ vec3 GetNormal()
         vec3 N = normalize(fragNormal);
         mat3 TBN = mat3(T, B, N);
 
-        vec3 sampledNormal = texture(textures[3], fragTexCoord).rgb;
+        vec3 sampledNormal = texture(textures[4], fragTexCoord).rgb;
         sampledNormal = normalize(sampledNormal * 2.0 - 1.0);
 
         normal = normalize(TBN * sampledNormal);
@@ -109,6 +109,7 @@ void main()
     vec4 albedo = texture(textures[0], fragTexCoord);
     float metallic = texture(textures[1], fragTexCoord).r;
     float roughness = texture(textures[2], fragTexCoord).r;
+    float opacity = texture(textures[3], fragTexCoord).r;
     
     vec3 normal = GetNormal();
 
@@ -120,5 +121,5 @@ void main()
     vec3 brdf = GetBRDF(normal, -G_SunLightDirection, viewDir, albedo.rgb, metallic, roughness);
 
     vec3 finalColor = ambient + cosineLaw * radiance * brdf;
-    outColor = vec4(finalColor, albedo.a);
+    outColor = vec4(finalColor, opacity);
 }
