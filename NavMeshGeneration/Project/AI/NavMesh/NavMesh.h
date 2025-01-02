@@ -12,6 +12,7 @@ public:
 	void GenerateNavMesh();
 	void GenerateNavMeshesTest(int amount);
 
+	std::vector<glm::vec3> GeneratePath(glm::vec3 startPoint, glm::vec3 endPoint);
 	void GenerateRandomPath();
 	void GenerateRandomPathsTest(int amount);
 
@@ -25,6 +26,7 @@ public:
 	virtual void Render(VkCommandBuffer buffer) const override { vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0); }
 
 	virtual PipelinesEnum GetPipelineID() const override { return PipelinesEnum::opacity; }
+	virtual bool IsHidden() const override { return true; }
 
 	void SetMaterial(Material* material) { m_Material = material; }
 	Material* GetMaterial() const override { return m_Material; }
@@ -41,15 +43,14 @@ private:
 
 	void FillVerticesAndIndices(std::vector<const NavMeshStructs::Voxel*> path);
 
-	float m_RenderHeightOffset{ 5.f };
+	float m_RenderHeightOffset{ 0.5f };
 
-	std::vector<Vertex> m_Vertices{};
-	std::vector<uint32_t> m_Indices{};
+	std::vector<Vertex> m_Vertices{ {{0.f, 0.f, 0.f}} };
+	std::vector<uint32_t> m_Indices{0, 0, 0};
 
 	std::optional<uint32_t> m_RenderID{};
 
 	Material* m_Material{};
 
 	std::vector<glm::mat4> m_ModelMatrices{};
-
 };

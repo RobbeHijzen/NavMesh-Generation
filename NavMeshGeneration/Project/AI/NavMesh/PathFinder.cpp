@@ -5,12 +5,11 @@
 using namespace NavMeshStructs;
 using namespace PathFindingStructs;
 
-std::vector<const NavMeshStructs::Voxel*> PathFinder::GetPath(const std::vector<VoxelNode>& graph, int startIndex, int endIndex)
+std::vector<const NavMeshStructs::Voxel*> PathFinder::GetPath(const std::vector<VoxelNode>& graph, const VoxelNode* startVoxel, const VoxelNode* endVoxel)
 {
+    if (!startVoxel || !endVoxel) return {};
+
 	std::vector<const Voxel*> result{};
-    const VoxelNode* startVoxel = &graph[startIndex];
-    const VoxelNode* endVoxel = &graph[endIndex];
-    
     
 	std::priority_queue<NodeRecord, std::vector<NodeRecord>, NodeRecordCompare> openList{};
 	std::unordered_map<const VoxelNode*, NodeRecord> closedList{};
@@ -73,6 +72,11 @@ std::vector<const NavMeshStructs::Voxel*> PathFinder::GetPath(const std::vector<
     return result;
 }
 
+std::vector<const NavMeshStructs::Voxel*> PathFinder::GetPath(const std::vector<NavMeshStructs::VoxelNode>& graph, int startIndex, int endIndex)
+{
+    return GetPath(graph, &graph[startIndex], &graph[endIndex]);
+}
+
 float PathFinder::GetCost(const NavMeshStructs::Voxel* v1, const NavMeshStructs::Voxel* v2)
 {
 	return v1->bounds.min.x * v2->bounds.min.x + v1->bounds.min.y * v2->bounds.min.y + v1->bounds.min.z * v2->bounds.min.z;
@@ -88,7 +92,7 @@ float PathFinder::GetCost(const NavMeshStructs::VoxelNode* v1, const NavMeshStru
 	return GetCost(v1->voxel, v2);
 }
 
-const NavMeshStructs::VoxelNode* PathFinder::GetVoxelNodeFromVoxel(const std::vector<NavMeshStructs::VoxelNode>& voxelNodes, const NavMeshStructs::Voxel* voxel)
+const NavMeshStructs::VoxelNode* PathFinder::GetVoxelNodeFromVoxel(const std::vector<NavMeshStructs::VoxelNode>& voxelNodes, const NavMeshStructs::Voxel* voxel) const
 {
 	for (const auto& voxelNode : voxelNodes)
 	{

@@ -15,12 +15,22 @@ namespace NavMeshStructs
 	{
 		AABB bounds{};
 		VoxelTypes type{};
+
+		bool Contains(glm::vec3 point) const
+		{
+			return bounds.Contains(point);
+		}
 	};
 
 	struct VoxelNode
 	{
 		const Voxel* voxel{};
 		std::vector<const Voxel*> neighbors{};
+
+		bool Contains(glm::vec3 point) const
+		{
+			return voxel->Contains(point);
+		}
 	};
 
 	struct Span

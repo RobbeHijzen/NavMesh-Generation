@@ -88,7 +88,24 @@ void VulkanBase::LoadScene()
 	m_NavMesh = navMesh;
 	m_NavMesh->GenerateNavMesh();
 	
-	m_NavMesh->GenerateRandomPath();
+
+	// AI guy
+	auto ai{ new Mesh("Resources/objs/cube.obj") };
+	ai->SetPosition({ 0.f, 50.f, 0.f });
+	ai->SetScale({ 0.1f, 1.f, 0.1f });
+
+	ai->SetMaterial(doorMat);
+	
+	ai->AddComponent(std::make_shared<CollisionComponent>(ai, false, 0));
+	
+	auto aiMovementComp{ std::make_shared<AIMovementComponent>(ai, navMesh) };
+	
+	std::vector<glm::vec3> path{ {-500.f, 0.f, -500.f}, {-500.f, 0.f, 500.f}, {500.f, 0.f, -500.f}, {500.f, 0.f, 500.f} };
+	aiMovementComp->SetFollowPath(path);
+	
+	ai->AddComponent(aiMovementComp);
+	
+	m_Scene->AddObject(ai);
 }
 void SpawnFloorTile(glm::vec3 location, glm::vec3 rotation, Scene* scene, Material* material)
 {
@@ -105,18 +122,18 @@ void SpawnFloorTile(glm::vec3 location, glm::vec3 rotation, Scene* scene, Materi
 
 void VulkanBase::HandleInput(GLFWwindow* window)
 {
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && m_CanRepathNavMesh)
-	{
-		m_CanRepathNavMesh = false;
-	
-		m_NavMesh->GenerateRandomPath();
-
-		FillVertexBuffer(m_NavMesh->GetVertices(), m_NavMesh->GetRenderID());
-		FillIndexBuffer(m_NavMesh->GetIndices(), m_NavMesh->GetRenderID());
-	}
-	else if(glfwGetKey(window, GLFW_KEY_R) != GLFW_PRESS)
-	{
-		m_CanRepathNavMesh = true;
-	}
+	//if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && m_CanRepathNavMesh)
+	//{
+	//	m_CanRepathNavMesh = false;
+	//
+	//	m_NavMesh->GenerateRandomPath();
+	//
+	//	FillVertexBuffer(m_NavMesh->GetVertices(), m_NavMesh->GetRenderID());
+	//	FillIndexBuffer(m_NavMesh->GetIndices(), m_NavMesh->GetRenderID());
+	//}
+	//else if(glfwGetKey(window, GLFW_KEY_R) != GLFW_PRESS)
+	//{
+	//	m_CanRepathNavMesh = true;
+	//}
 
 }

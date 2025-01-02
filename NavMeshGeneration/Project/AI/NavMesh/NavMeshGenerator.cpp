@@ -26,6 +26,21 @@ std::vector<VoxelNode> NavMeshGenerator::GenerateNavMesh()
 	return m_VoxelNodes;
 }
 
+const NavMeshStructs::Voxel* NavMeshGenerator::GetVoxelFromPosition(glm::vec3 position) const
+{
+	if (!m_Boundaries.Contains(position)) return nullptr;
+
+	position -= m_Boundaries.min;
+	position /= (m_Boundaries.max - m_Boundaries.min);
+
+	return &m_Voxels[GetIndexFromXYZ(int(position.x * m_VoxelsAmountX), int(position.y * m_VoxelsAmountY), int(position.z * m_VoxelsAmountZ))];
+}
+
+glm::vec3 NavMeshGenerator::GetVoxelSize() const
+{
+	return (m_Boundaries.max - m_Boundaries.min) / glm::vec3{ m_VoxelsAmountX, m_VoxelsAmountY, m_VoxelsAmountZ };
+}
+
 void NavMeshGenerator::InitializeVoxels()
 {
 	m_Voxels.resize(m_VoxelsAmountX * m_VoxelsAmountY * m_VoxelsAmountZ);

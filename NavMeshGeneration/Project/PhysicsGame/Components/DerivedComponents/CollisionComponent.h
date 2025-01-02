@@ -6,7 +6,7 @@
 #include "VulkanBase/HelperStructs/HelperStructs.h"
 
 
-class CollisionComponent : public BaseComponent //, public IRenderable
+class CollisionComponent : public BaseComponent , public IRenderable
 {
 public:
 
@@ -17,26 +17,27 @@ public:
 
 	auto GetAABBs() const { return m_TransformedAABBs; }
 
-	//bool IsInstanceable() const override { return true; }
-	//std::vector<glm::mat4> GetModelMatrices() const override { return m_ModelMatrices; }
-	//
-	//const std::vector<uint32_t>& GetIndices() const override { return m_Indices; };
-	//const std::vector<Vertex>& GetVertices() const override { return m_Vertices; }
-	//
-	//uint32_t GetRenderID() const override { return m_RenderID.value(); }
-	//void SetRenderID(uint32_t index) override { m_RenderID = index; }
-	//
-	//PipelinesEnum GetPipelineID() const override { return m_PipelineID; }
-	//std::string GetDiffuseString() const { return "Resources/texs/Manny_BaseColor.png"; };
-	//
-	//void Render(VkCommandBuffer buffer) const override;
-	//
-	//bool IsHidden() const override { return m_IsHidden; }
-	//void SetHidden(bool newHidden) { m_IsHidden = newHidden; }
+	bool IsInstanceable() const override { return true; }
+	std::vector<glm::mat4> GetModelMatrices() const override { return m_ModelMatrices; }
+	
+	const std::vector<uint32_t>& GetIndices() const override { return m_Indices; };
+	const std::vector<Vertex>& GetVertices() const override { return m_Vertices; }
+	
+	uint32_t GetRenderID() const override { return m_RenderID.value(); }
+	void SetRenderID(uint32_t index) override { m_RenderID = index; }
+	
+	PipelinesEnum GetPipelineID() const override { return m_PipelineID; }
+
+	Material* GetMaterial() const override { return m_Material.get(); }
+	
+	void Render(VkCommandBuffer buffer) const override;
+	
+	bool IsHidden() const override { return m_IsHidden; }
+	void SetHidden(bool newHidden) { m_IsHidden = newHidden; }
 
 private:
 
-	bool m_IsHidden{ false };
+	bool m_IsHidden{ true };
 
 	std::vector<glm::mat4> m_ModelMatrices{};
 	void UpdateModelMatrix();
@@ -53,5 +54,7 @@ private:
 
 	std::optional<uint32_t> m_RenderID{};
 	PipelinesEnum m_PipelineID{ PipelinesEnum::linesOnly };
+
+	std::unique_ptr<Material> m_Material{};
 
 };

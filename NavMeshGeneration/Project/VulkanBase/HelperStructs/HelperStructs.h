@@ -71,4 +71,15 @@ struct AABB
 		return result;
 	}
 	
+	bool Contains(glm::vec3 point) const
+	{
+		return point.x > min.x && point.y > min.y && point.z > min.z &&
+			point.x < max.x && point.y < max.y && point.z < max.z;
+	}
+
+	glm::vec3 GetMiddle() const
+	{
+		return min + ((max - min) / 2.f);
+	}
+
 };

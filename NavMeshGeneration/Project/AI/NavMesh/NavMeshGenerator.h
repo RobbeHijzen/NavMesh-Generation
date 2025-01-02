@@ -9,9 +9,14 @@ public:
 
 	NavMeshGenerator(Scene* scene);
 	std::vector<NavMeshStructs::VoxelNode> GenerateNavMesh();
+	const NavMeshStructs::Voxel* GetVoxelFromPosition(glm::vec3 position) const;
 
 	void SetMaterial(Material* material) { m_Material = material; }
 	Material* GetMaterial() const override { return m_Material; }
+
+	const std::vector<NavMeshStructs::VoxelNode>& GetVoxelNodes() const { return m_VoxelNodes; }
+
+	glm::vec3 GetVoxelSize() const;
 
 private:
 
@@ -19,11 +24,10 @@ private:
 	int m_VoxelsAmountX{100};
 	int m_VoxelsAmountY{51};
 	int m_VoxelsAmountZ{100};
-
-
+	
 	std::vector<NavMeshStructs::Voxel> m_Voxels{};
 
-	std::vector<int> m_WalkableVoxelsIndices{};	// pair: voxel and the index of the voxel in m_Voxels
+	std::vector<int> m_WalkableVoxelsIndices{};
 	std::vector<NavMeshStructs::VoxelNode> m_VoxelNodes{};
 	std::vector<NavMeshStructs::HeightMapPixel> m_HeightMap{};
 	Scene* m_Scene{};
@@ -47,8 +51,8 @@ private:
 
 	float m_RenderHeightOffset{0.5f};
 
-	std::vector<Vertex> m_Vertices{};
-	std::vector<uint32_t> m_Indices{};
+	std::vector<Vertex> m_Vertices{ {{0.f, 0.f, 0.f}} };
+	std::vector<uint32_t> m_Indices{0, 0, 0};
 
 	std::optional<uint32_t> m_RenderID{};
 
@@ -63,6 +67,7 @@ private:
 	virtual void Render(VkCommandBuffer buffer) const override { vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0); }
 
 	virtual PipelinesEnum GetPipelineID() const override { return PipelinesEnum::opacity; }
+	virtual bool IsHidden() const override { return true; }
 
 	Material* m_Material{};
 

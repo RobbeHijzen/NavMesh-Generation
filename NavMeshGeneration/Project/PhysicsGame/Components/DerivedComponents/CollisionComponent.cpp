@@ -9,6 +9,9 @@ CollisionComponent::CollisionComponent(Mesh* pParent, bool isStaticMesh, int aab
     : BaseComponent(pParent)
     , m_HasStaticCollision{ isStaticMesh }
 {
+    m_Material = std::make_unique<Material>();
+    m_Material->SetAlbedoString("Resources/texs/Manny_BaseColor.png");
+
     Observer* obs{ new Observer(GameEvents::ModelMatrixChanged, [&] { this->CalculateTransformedAABBs(); }) };
     pParent->AddObserver(obs);
     obs = new Observer(GameEvents::ModelMatrixChanged, [&] { this->UpdateModelMatrix(); });
@@ -26,10 +29,10 @@ void CollisionComponent::GameStart()
     UpdateModelMatrix();
 }
 
-//void CollisionComponent::Render(VkCommandBuffer buffer) const
-//{
-//    vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0);
-//}
+void CollisionComponent::Render(VkCommandBuffer buffer) const
+{
+    vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0);
+}
 
 void CollisionComponent::UpdateModelMatrix()
 {    

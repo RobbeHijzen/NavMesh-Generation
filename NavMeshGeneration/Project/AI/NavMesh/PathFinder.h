@@ -9,7 +9,11 @@ class PathFinder : public Object
 public:
 
 	std::vector<const NavMeshStructs::Voxel*> GetPath(const std::vector<NavMeshStructs::VoxelNode>& graph,
+		const NavMeshStructs::VoxelNode* startVoxel, const NavMeshStructs::VoxelNode* endVoxel);
+	std::vector<const NavMeshStructs::Voxel*> GetPath(const std::vector<NavMeshStructs::VoxelNode>& graph,
 														int startIndex, int endIndex);
+
+	const NavMeshStructs::VoxelNode* GetVoxelNodeFromVoxel(const std::vector<NavMeshStructs::VoxelNode>& voxelNodes, const NavMeshStructs::Voxel* voxel) const;
 
 private:
 
@@ -17,7 +21,6 @@ private:
 	float GetCost(const NavMeshStructs::VoxelNode* v1, const NavMeshStructs::VoxelNode* v2);
 	float GetCost(const NavMeshStructs::VoxelNode* v1, const NavMeshStructs::Voxel* v2);
 
-	const NavMeshStructs::VoxelNode* GetVoxelNodeFromVoxel(const std::vector<NavMeshStructs::VoxelNode>& voxelNodes, const NavMeshStructs::Voxel* voxel);
 
 	struct NodeRecordCompare
 	{

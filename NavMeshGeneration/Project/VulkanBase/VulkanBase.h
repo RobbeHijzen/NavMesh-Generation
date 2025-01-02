@@ -5,9 +5,11 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
-#include "PhysicsGame/Collision/CollisionFixer.h"
 #include "PhysicsGame/Components/DerivedComponents/CollisionComponent.h"
-#include "PhysicsGame/Components/DerivedComponents/MovementComponent.h"
+#include "PhysicsGame/Collision/CollisionFixer.h"
+#include "PhysicsGame/Components/DerivedComponents/MovementComponent.h" 
+#include "PhysicsGame/Components/DerivedComponents/AIMovementComponent.h" 
+
 #include "PhysicsGame/Camera.h"
 
 #include "VulkanUtil/VulkanUtil.h"
