@@ -79,7 +79,8 @@ std::vector<const NavMeshStructs::Voxel*> PathFinder::GetPath(const std::vector<
 
 float PathFinder::GetCost(const NavMeshStructs::Voxel* v1, const NavMeshStructs::Voxel* v2)
 {
-	return v1->bounds.min.x * v2->bounds.min.x + v1->bounds.min.y * v2->bounds.min.y + v1->bounds.min.z * v2->bounds.min.z;
+	//return v1->bounds.min.x * v2->bounds.min.x + v1->bounds.min.y * v2->bounds.min.y + v1->bounds.min.z * v2->bounds.min.z;
+	return glm::distance(v1->bounds.min, v2->bounds.min);
 }
 
 float PathFinder::GetCost(const NavMeshStructs::VoxelNode* v1, const NavMeshStructs::VoxelNode* v2)

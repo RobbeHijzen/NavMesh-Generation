@@ -1,6 +1,6 @@
 #include "MovingObjectComponent.h"
 #include "VulkanBase/Time/Time.h"
-
+#include "AI/NavMesh/NavMesh.h"
 
 void MovingObjectComponent::GameStart()
 {
@@ -15,10 +15,20 @@ void MovingObjectComponent::Update(GLFWwindow* window)
 
 	if (m_IsCurrentlyMoving)
 	{
+		if (m_UpdateNavmeshEveryFrame && m_NavMesh)
+		{
+			m_NavMesh->SetNavMeshDirty();
+		}
+
 		if (m_CurrentLifeTime >= m_TriggerDuration)
 		{
 			GetOwner()->SetPosition(m_StartLocation + m_DeltaLocation);
 			m_HasMoved = true;
+
+			if (m_UpdateNavmeshOnMovementCompleted && m_NavMesh)
+			{
+				m_NavMesh->SetNavMeshDirty();
+			}
 		}
 		else
 		{

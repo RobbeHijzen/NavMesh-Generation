@@ -178,6 +178,45 @@ std::vector<const Voxel*> NavMeshGenerator::GetNeighborsFromVoxelIndex(int index
 		}
 	}
 
+	// Negative X Negative Z
+	if (xyz.x > 0 && xyz.z > 0)
+	{
+		Voxel* voxel{ &m_Voxels[GetIndexFromXYZ(xyz.x - 1, xyz.y, xyz.z - 1)] };
+		if (voxel->type == VoxelTypes::Walkable)
+		{
+			neighbors.emplace_back(voxel);
+		}
+	}
+
+	// Negative X Postive Z
+	if (xyz.x > 0 && xyz.z < m_VoxelsAmountZ - 1)
+	{
+		Voxel* voxel{ &m_Voxels[GetIndexFromXYZ(xyz.x - 1, xyz.y, xyz.z + 1)] };
+		if (voxel->type == VoxelTypes::Walkable)
+		{
+			neighbors.emplace_back(voxel);
+		}
+	}
+
+	// Positive X Negative Z
+	if (xyz.x < m_VoxelsAmountX - 1 && xyz.z > 0)
+	{
+		Voxel* voxel{ &m_Voxels[GetIndexFromXYZ(xyz.x + 1, xyz.y, xyz.z - 1)] };
+		if (voxel->type == VoxelTypes::Walkable)
+		{
+			neighbors.emplace_back(voxel);
+		}
+	}
+
+	// Positive X Positive Z
+	if (xyz.x < m_VoxelsAmountX - 1 && xyz.z < m_VoxelsAmountZ - 1)
+	{
+		Voxel* voxel{ &m_Voxels[GetIndexFromXYZ(xyz.x + 1, xyz.y, xyz.z + 1)] };
+		if (voxel->type == VoxelTypes::Walkable)
+		{
+			neighbors.emplace_back(voxel);
+		}
+	}
 	
 	return neighbors;
 }

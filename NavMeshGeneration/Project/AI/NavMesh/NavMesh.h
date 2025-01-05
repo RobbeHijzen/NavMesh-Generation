@@ -8,6 +8,7 @@ class NavMesh : public Object, public IRenderable
 public:
 	
 	NavMesh(NavMeshGenerator* navMeshGenerator, PathFinder* pathFinder);
+	virtual void Update(GLFWwindow* window) override;
 
 	void GenerateNavMesh();
 	void GenerateNavMeshesTest(int amount);
@@ -34,6 +35,8 @@ public:
 	void SetMaterial(Material* material) { m_Material = material; }
 	Material* GetMaterial() const override { return m_Material; }
 
+	void SetNavMeshDirty() { m_IsNavMeshDirty = true; }
+
 private:
 
 	NavMeshGenerator* m_NavMeshGenerator{};
@@ -41,6 +44,7 @@ private:
 
 	std::vector<NavMeshStructs::VoxelNode> m_VoxelNodes{};
 
+	bool m_IsNavMeshDirty{ false };
 
 	// Rendering
 

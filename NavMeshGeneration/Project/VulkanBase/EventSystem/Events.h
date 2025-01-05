@@ -3,5 +3,5 @@
 enum class GameEvents
 {
 	ModelMatrixChanged,
-
+	NavMeshChanged
 };

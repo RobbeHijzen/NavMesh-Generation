@@ -2,11 +2,22 @@
 
 void VulkanBase::LoadScene()
 {
-	auto doorMat{m_Scene->CreateMaterial()};
-	doorMat->SetAlbedoString("Resources/texs/Door/Door_Albedo.png");
-	doorMat->SetMetallicString("Resources/texs/Door/Door_Metallic.png");
-	doorMat->SetRoughnessString("Resources/texs/Door/Door_Roughness.png");
-	doorMat->SetNormalString("Resources/texs/Door/Door_Normal.png");
+	// NavMesh
+	auto redMat{ m_Scene->CreateMaterial() };
+	redMat->SetAlbedoString("Resources/texs/Red.png");
+	redMat->SetOpacityString("Resources/texs/Gray_02.png");
+
+	auto greenMat{ m_Scene->CreateMaterial() };
+	greenMat->SetAlbedoString("Resources/texs/Green.png");
+	greenMat->SetOpacityString("Resources/texs/Gray_02.png");
+
+
+	auto navMeshGenerator{ new NavMeshGenerator(m_Scene) };
+	auto pathFinder{ new PathFinder() };
+	auto navMesh{ new NavMesh(navMeshGenerator, pathFinder) };
+
+	navMeshGenerator->SetMaterial(greenMat);
+	navMesh->SetMaterial(redMat);
 
 	// Floor
 	auto floorMat{ m_Scene->CreateMaterial() };
@@ -302,7 +313,7 @@ void VulkanBase::LoadScene()
 	}
 
 	auto col{ std::make_shared<CollisionComponent>(tile, true, 0) };
-	col->SetAABBs({ AABB{{-750.f, 0, -950.f}, {675.f, 0, 1000.f}} });
+	col->SetAABBs({ AABB{{-750.f, 0, -950.f}, {700.f, 0, 1000.f}} });
 	tile->AddComponent(col);
 	m_Scene->AddObject(tile);
 
@@ -531,7 +542,7 @@ void VulkanBase::LoadScene()
 	auto deskTable_02{ new Mesh("Resources/objs/Tables/Table_Top_Small.obj") };
 	deskTable_02->SetMaterial(tableMat);
 	deskTable_02->SetPosition({ 0.f, 90.f, -566.f });
-	deskTable_02->SetRotation({ 0.f, 0.f, 0.f });
+	deskTable_02->SetRotation({ 0.f, PI, 0.f });
 	deskTable_02->AddComponent(std::make_shared<CollisionComponent>(deskTable_02, true, 0));
 
 	auto deskTable_03{ new Mesh("Resources/objs/Tables/Table_Top_Small.obj") };
@@ -549,7 +560,7 @@ void VulkanBase::LoadScene()
 	auto deskTable_05{ new Mesh("Resources/objs/Tables/Table_Top_Small.obj") };
 	deskTable_05->SetMaterial(tableMat);
 	deskTable_05->SetPosition({ 0.f, 90.f, 567.f });
-	deskTable_05->SetRotation({ 0.f, PI, 0.f });
+	deskTable_05->SetRotation({ 0.f, 0.f, 0.f });
 	deskTable_05->AddComponent(std::make_shared<CollisionComponent>(deskTable_05, true, 0));
 
 
@@ -649,7 +660,7 @@ void VulkanBase::LoadScene()
 	auto deskScreen_03{ new Mesh("Resources/objs/Tables/Table_Screen.obj") };
 	deskScreen_03->SetMaterial(tableMat);
 	deskScreen_03->SetPosition({ 0.f, 90.5f, -566.f });
-	deskScreen_03->SetRotation({ 0.f, 0.f, 0.f });
+	deskScreen_03->SetRotation({ 0.f, PI, 0.f });
 	deskScreen_03->AddComponent(std::make_shared<CollisionComponent>(deskScreen_03, true, 0));
 
 	auto deskScreen_04{ new Mesh("Resources/objs/Tables/Table_Screen.obj") };
@@ -667,7 +678,7 @@ void VulkanBase::LoadScene()
 	auto deskScreen_06{ new Mesh("Resources/objs/Tables/Table_Screen.obj") };
 	deskScreen_06->SetMaterial(tableMat);
 	deskScreen_06->SetPosition({ 0.f, 90.5f, 567.f });
-	deskScreen_06->SetRotation({ 0.f, PI, 0.f });
+	deskScreen_06->SetRotation({ 0.f, 0.f, 0.f });
 	deskScreen_06->AddComponent(std::make_shared<CollisionComponent>(deskScreen_06, true, 0));
 
 
@@ -684,27 +695,6 @@ void VulkanBase::LoadScene()
 	lootBoxMat->SetMetallicString("Resources/texs/LootItems/LootItems_Metallic.png");
 	lootBoxMat->SetRoughnessString("Resources/texs/LootItems/LootItems_Roughness.png");
 	lootBoxMat->SetNormalString("Resources/texs/LootItems/LootItems_Normal.png");
-
-	auto lootBox_01{ new Mesh("Resources/objs/Misc/LootBox.obj") };
-	lootBox_01->SetPosition({ -679.f, 0.f, 859.f });
-	lootBox_01->SetRotation({ 0, glm::radians(-80.f), 0});
-	lootBox_01->SetMaterial(lootBoxMat);
-	lootBox_01->AddComponent(std::make_shared<CollisionComponent>(lootBox_01, true, 0));
-	lootBox_01->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_01, 25.f, glm::vec3{ 0.f, -100.f, 0.f }));
-
-	auto lootBox_02{ new Mesh("Resources/objs/Misc/LootBox.obj") };
-	lootBox_02->SetPosition({ -628.f, 0.f, 937.f });
-	lootBox_02->SetRotation({ 0, glm::radians(-100.f), 0 });
-	lootBox_02->SetMaterial(lootBoxMat);
-	lootBox_02->AddComponent(std::make_shared<CollisionComponent>(lootBox_02, true, 0));
-	lootBox_02->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_02, 25.f, glm::vec3{ 0.f, -100.f, 0.f }));
-
-	auto lootBox_03{ new Mesh("Resources/objs/Misc/LootBox.obj") };
-	lootBox_03->SetPosition({ -664.f, 95.f, 911.f });
-	lootBox_03->SetRotation({ 0, glm::radians(-115.f), 0 });
-	lootBox_03->SetMaterial(lootBoxMat);
-	lootBox_03->AddComponent(std::make_shared<CollisionComponent>(lootBox_03, true, 0));
-	lootBox_03->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_03, 25.f, glm::vec3{ 0.f, -100.f, 0.f }));
 
 	auto lootBox_04{ new Mesh("Resources/objs/Misc/LootBox.obj") };
 	lootBox_04->SetPosition({ -272.f, 0.f, 526.f });
@@ -723,21 +713,43 @@ void VulkanBase::LoadScene()
 	lootBox_06->SetRotation({ 0, glm::radians(-210.f), 0 });
 	lootBox_06->SetMaterial(lootBoxMat);
 	lootBox_06->AddComponent(std::make_shared<CollisionComponent>(lootBox_06, true, 0));
-	lootBox_06->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_06, 16.f, glm::vec3{ 0.f, -100.f, 0.f }));
+	lootBox_06->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_06, 19.f, glm::vec3{ 0.f, -100.f, 0.f }, navMesh));
 
 	auto lootBox_07{ new Mesh("Resources/objs/Misc/LootBox.obj") };
 	lootBox_07->SetPosition({ 481.f, 0.f, -823.f });
 	lootBox_07->SetRotation({ 0, glm::radians(-145.f), 0 });
 	lootBox_07->SetMaterial(lootBoxMat);
 	lootBox_07->AddComponent(std::make_shared<CollisionComponent>(lootBox_07, true, 0));
-	lootBox_07->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_07, 16.f, glm::vec3{ 0.f, -100.f, 0.f }));
+	lootBox_07->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_07, 19.f, glm::vec3{ 0.f, -100.f, 0.f }, navMesh));
 
 	auto lootBox_08{ new Mesh("Resources/objs/Misc/LootBox.obj") };
 	lootBox_08->SetPosition({ 478.f, 0.f, 776.f });
 	lootBox_08->SetRotation({ 0, glm::radians(20.f), 0 });
 	lootBox_08->SetMaterial(lootBoxMat);
 	lootBox_08->AddComponent(std::make_shared<CollisionComponent>(lootBox_08, true, 0));
-	lootBox_08->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_08, 21.f, glm::vec3{ 0.f, -100.f, 0.f }));
+	lootBox_08->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_08, 32.f, glm::vec3{ 0.f, -100.f, 0.f }, navMesh));
+
+	auto lootBox_01{ new Mesh("Resources/objs/Misc/LootBox.obj") };
+	lootBox_01->SetPosition({ -679.f, 0.f, 859.f });
+	lootBox_01->SetRotation({ 0, glm::radians(-80.f), 0 });
+	lootBox_01->SetMaterial(lootBoxMat);
+	lootBox_01->AddComponent(std::make_shared<CollisionComponent>(lootBox_01, true, 0));
+	lootBox_01->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_01, 40.5f, glm::vec3{ 0.f, -100.f, 0.f }, navMesh));
+
+	auto lootBox_02{ new Mesh("Resources/objs/Misc/LootBox.obj") };
+	lootBox_02->SetPosition({ -628.f, 0.f, 937.f });
+	lootBox_02->SetRotation({ 0, glm::radians(-100.f), 0 });
+	lootBox_02->SetMaterial(lootBoxMat);
+	lootBox_02->AddComponent(std::make_shared<CollisionComponent>(lootBox_02, true, 0));
+	lootBox_02->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_02, 40.5f, glm::vec3{ 0.f, -100.f, 0.f }, navMesh));
+
+	auto lootBox_03{ new Mesh("Resources/objs/Misc/LootBox.obj") };
+	lootBox_03->SetPosition({ -664.f, 95.f, 911.f });
+	lootBox_03->SetRotation({ 0, glm::radians(-115.f), 0 });
+	lootBox_03->SetMaterial(lootBoxMat);
+	lootBox_03->AddComponent(std::make_shared<CollisionComponent>(lootBox_03, true, 0));
+	lootBox_03->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_03, 40.5f, glm::vec3{ 0.f, -100.f, 0.f }, navMesh));
+
 
 	m_Scene->AddObject(lootBox_01);
 	m_Scene->AddObject(lootBox_02);
@@ -749,61 +761,61 @@ void VulkanBase::LoadScene()
 	m_Scene->AddObject(lootBox_08);
 
 
-	auto lootBox_09{ new Mesh("Resources/objs/Misc/LootBox.obj") };
-	lootBox_09->SetPosition({ -512.f, -100.f, 756.f });
-	lootBox_09->SetRotation({ 0, glm::radians(-45.f), 0 });
-	lootBox_09->SetMaterial(lootBoxMat);
-	lootBox_09->AddComponent(std::make_shared<CollisionComponent>(lootBox_09, true, 0));
-	lootBox_09->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_09, 25.f, glm::vec3{ 0.f, 100.f, 0.f }));
-
 	auto lootBox_10{ new Mesh("Resources/objs/Misc/LootBox.obj") };
 	lootBox_10->SetPosition({ -369.f, -100.f, -773.f });
 	lootBox_10->SetRotation({ 0, glm::radians(-190.f), 0 });
 	lootBox_10->SetMaterial(lootBoxMat);
 	lootBox_10->AddComponent(std::make_shared<CollisionComponent>(lootBox_10, true, 0));
-	lootBox_10->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_10, 12.f, glm::vec3{ 0.f, 100.f, 0.f }));
+	lootBox_10->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_10, 15.f, glm::vec3{ 0.f, 100.f, 0.f }, navMesh));
 
 	auto lootBox_11{ new Mesh("Resources/objs/Misc/LootBox.obj") };
 	lootBox_11->SetPosition({ -334.f, -100.f, -848.f });
 	lootBox_11->SetRotation({ 0, glm::radians(-200.f), 0 });
 	lootBox_11->SetMaterial(lootBoxMat);
 	lootBox_11->AddComponent(std::make_shared<CollisionComponent>(lootBox_11, true, 0));
-	lootBox_11->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_11, 12.f, glm::vec3{ 0.f, 100.f, 0.f }));
+	lootBox_11->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_11, 15.f, glm::vec3{ 0.f, 100.f, 0.f }, navMesh));
 
 	auto lootBox_12{ new Mesh("Resources/objs/Misc/LootBox.obj") };
 	lootBox_12->SetPosition({ -349.f, 0.f, -808.f });
 	lootBox_12->SetRotation({ 0, glm::radians(-215.f), 0 });
 	lootBox_12->SetMaterial(lootBoxMat);
 	lootBox_12->AddComponent(std::make_shared<CollisionComponent>(lootBox_12, true, 0));
-	lootBox_12->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_12, 12.f, glm::vec3{ 0.f, 95.f, 0.f }));
+	lootBox_12->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_12, 15.f, glm::vec3{ 0.f, 95.f, 0.f }, navMesh));
 
 	auto lootBox_13{ new Mesh("Resources/objs/Misc/LootBox.obj") };
 	lootBox_13->SetPosition({ 331.f, -100.f, -938.f });
 	lootBox_13->SetRotation({ 0, glm::radians(-200.f), 0 });
 	lootBox_13->SetMaterial(lootBoxMat);
 	lootBox_13->AddComponent(std::make_shared<CollisionComponent>(lootBox_13, true, 0));
-	lootBox_13->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_13, 15.f, glm::vec3{ 0.f, 100.f, 0.f }));
+	lootBox_13->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_13, 17.5f, glm::vec3{ 0.f, 100.f, 0.f }, navMesh));
 
 	auto lootBox_14{ new Mesh("Resources/objs/Misc/LootBox.obj") };
 	lootBox_14->SetPosition({ 638.f, -100.f, 66.f });
 	lootBox_14->SetRotation({ 0, glm::radians(20.f), 0 });
 	lootBox_14->SetMaterial(lootBoxMat);
 	lootBox_14->AddComponent(std::make_shared<CollisionComponent>(lootBox_14, true, 0));
-	lootBox_14->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_14, 19.f, glm::vec3{ 0.f, 100.f, 0.f }));
+	lootBox_14->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_14, 26.3f, glm::vec3{ 0.f, 100.f, 0.f }, navMesh));
 
 	auto lootBox_15{ new Mesh("Resources/objs/Misc/LootBox.obj") };
 	lootBox_15->SetPosition({ 548.f, -100.f, 76.f });
 	lootBox_15->SetRotation({ 0, glm::radians(10.f), 0 });
 	lootBox_15->SetMaterial(lootBoxMat);
 	lootBox_15->AddComponent(std::make_shared<CollisionComponent>(lootBox_15, true, 0));
-	lootBox_15->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_15, 19.f, glm::vec3{ 0.f, 100.f, 0.f }));
+	lootBox_15->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_15, 26.3f, glm::vec3{ 0.f, 100.f, 0.f }, navMesh));
 
 	auto lootBox_16{ new Mesh("Resources/objs/Misc/LootBox.obj") };
 	lootBox_16->SetPosition({ 463.f, -100.f, 76.f });
 	lootBox_16->SetRotation({ 0, glm::radians(-10.f), 0 });
 	lootBox_16->SetMaterial(lootBoxMat);
 	lootBox_16->AddComponent(std::make_shared<CollisionComponent>(lootBox_16, true, 0));
-	lootBox_16->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_16, 19.f, glm::vec3{ 0.f, 100.f, 0.f }));
+	lootBox_16->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_16, 26.3f, glm::vec3{ 0.f, 100.f, 0.f }, navMesh));
+
+	auto lootBox_09{ new Mesh("Resources/objs/Misc/LootBox.obj") };
+	lootBox_09->SetPosition({ -512.f, -100.f, 756.f });
+	lootBox_09->SetRotation({ 0, glm::radians(-45.f), 0 });
+	lootBox_09->SetMaterial(lootBoxMat);
+	lootBox_09->AddComponent(std::make_shared<CollisionComponent>(lootBox_09, true, 0));
+	lootBox_09->AddComponent(std::make_shared<MovingObjectComponent>(lootBox_09, 40.5f, glm::vec3{ 0.f, 100.f, 0.f }, navMesh));
 
 	m_Scene->AddObject(lootBox_09);
 	m_Scene->AddObject(lootBox_10);
@@ -816,30 +828,7 @@ void VulkanBase::LoadScene()
 
 	// Loot Cylinders
 
-	// Batch 1
-	auto CylindersBatch_01{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
-	CylindersBatch_01->SetMaterial(lootBoxMat);
-	CylindersBatch_01->SetInstanceable(true);
-
-	{
-		CylindersBatch_01->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -564.f, 0.f, -916.f }), glm::radians(15.f), {0.f, 1.f, 0.f}));
-		CylindersBatch_01->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -559.f, 0.f, -959.f }), glm::radians(-25.f), {0.f, 1.f, 0.f}));
-		CylindersBatch_01->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -519.f, 0.f, -969.f }), glm::radians(0.f), {0.f, 1.f, 0.f}));
-	}
-	CylindersBatch_01->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_01, true, 0));
-	CylindersBatch_01->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_01, 25.f, glm::vec3{ 0.f, -100.f, 0.f }));
-
-	// Batch 2
-	auto CylindersBatch_02{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
-	CylindersBatch_02->SetMaterial(lootBoxMat);
-	CylindersBatch_02->SetInstanceable(true);
-
-	{
-		CylindersBatch_02->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -638.f, 0.f, -798.f }), glm::radians(-30.f), { 0.f, 1.f, 0.f }));
-	}
-	CylindersBatch_02->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_02, true, 0));
-	CylindersBatch_02->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_02, 25.f, glm::vec3{ 0.f, -100.f, 0.f }));
-
+	
 	// Batch 3
 	auto CylindersBatch_03{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
 	CylindersBatch_03->SetMaterial(lootBoxMat);
@@ -875,31 +864,6 @@ void VulkanBase::LoadScene()
 	}
 	CylindersBatch_05->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_05, true, 0));
 
-	// Batch 6
-	auto CylindersBatch_06{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
-	CylindersBatch_06->SetMaterial(lootBoxMat);
-	CylindersBatch_06->SetInstanceable(true);
-
-	{
-		CylindersBatch_06->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { 520.f, 0.f, 778.f }), glm::radians(-30.f), { 0.f, 1.f, 0.f }));
-		CylindersBatch_06->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { 485.f, 0.f, 749.f }), glm::radians(-5.f), { 0.f, 1.f, 0.f }));
-		CylindersBatch_06->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { 466.f, 0.f, 710.f }), glm::radians(10.f), { 0.f, 1.f, 0.f }));
-	}
-	CylindersBatch_06->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_06, true, 0));
-	CylindersBatch_06->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_06, 16.f, glm::vec3{ 0.f, -100.f, 0.f }));
-
-	// Batch 7
-	auto CylindersBatch_07{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
-	CylindersBatch_07->SetMaterial(lootBoxMat);
-	CylindersBatch_07->SetInstanceable(true);
-
-	{
-		CylindersBatch_07->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -248.f, 0.f, 506.f }), glm::radians(-15.f), { 0.f, 1.f, 0.f }));
-		CylindersBatch_07->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -279.f, 0.f, 480.f }), glm::radians(40.f), { 0.f, 1.f, 0.f }));
-		CylindersBatch_07->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -284.f, 0.f, 520.f }), glm::radians(5.f), { 0.f, 1.f, 0.f }));
-	}
-	CylindersBatch_07->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_07, true, 0));
-
 	// Batch 8
 	auto CylindersBatch_08{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
 	CylindersBatch_08->SetMaterial(lootBoxMat);
@@ -914,7 +878,56 @@ void VulkanBase::LoadScene()
 		CylindersBatch_08->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -546.f, 0.f, 750.f }), glm::radians(-20.f), { 0.f, 1.f, 0.f }));
 	}
 	CylindersBatch_08->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_08, true, 0));
-	CylindersBatch_08->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_08, 12.f, glm::vec3{ 0.f, -100.f, 0.f }));
+	CylindersBatch_08->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_08, 15.f, glm::vec3{ 0.f, -100.f, 0.f }, navMesh));
+
+	// Batch 6
+	auto CylindersBatch_06{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
+	CylindersBatch_06->SetMaterial(lootBoxMat);
+	CylindersBatch_06->SetInstanceable(true);
+
+	{
+		CylindersBatch_06->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { 520.f, 0.f, 778.f }), glm::radians(-30.f), { 0.f, 1.f, 0.f }));
+		CylindersBatch_06->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { 485.f, 0.f, 749.f }), glm::radians(-5.f), { 0.f, 1.f, 0.f }));
+		CylindersBatch_06->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { 466.f, 0.f, 710.f }), glm::radians(10.f), { 0.f, 1.f, 0.f }));
+	}
+	CylindersBatch_06->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_06, true, 0));
+	CylindersBatch_06->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_06, 20.f, glm::vec3{ 0.f, -100.f, 0.f }, navMesh));
+
+	// Batch 7
+	auto CylindersBatch_07{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
+	CylindersBatch_07->SetMaterial(lootBoxMat);
+	CylindersBatch_07->SetInstanceable(true);
+
+	{
+		CylindersBatch_07->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -248.f, 0.f, 506.f }), glm::radians(-15.f), { 0.f, 1.f, 0.f }));
+		CylindersBatch_07->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -279.f, 0.f, 480.f }), glm::radians(40.f), { 0.f, 1.f, 0.f }));
+		CylindersBatch_07->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -284.f, 0.f, 520.f }), glm::radians(5.f), { 0.f, 1.f, 0.f }));
+	}
+	CylindersBatch_07->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_07, true, 0));
+
+	// Batch 1
+	auto CylindersBatch_01{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
+	CylindersBatch_01->SetMaterial(lootBoxMat);
+	CylindersBatch_01->SetInstanceable(true);
+
+	{
+		CylindersBatch_01->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -564.f, 0.f, -916.f }), glm::radians(15.f), { 0.f, 1.f, 0.f }));
+		CylindersBatch_01->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -559.f, 0.f, -959.f }), glm::radians(-25.f), { 0.f, 1.f, 0.f }));
+		CylindersBatch_01->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -519.f, 0.f, -969.f }), glm::radians(0.f), { 0.f, 1.f, 0.f }));
+	}
+	CylindersBatch_01->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_01, true, 0));
+	CylindersBatch_01->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_01, 40.5f, glm::vec3{ 0.f, -100.f, 0.f }, navMesh));
+
+	// Batch 2
+	auto CylindersBatch_02{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
+	CylindersBatch_02->SetMaterial(lootBoxMat);
+	CylindersBatch_02->SetInstanceable(true);
+
+	{
+		CylindersBatch_02->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -638.f, 0.f, -798.f }), glm::radians(-30.f), { 0.f, 1.f, 0.f }));
+	}
+	CylindersBatch_02->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_02, true, 0));
+	CylindersBatch_02->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_02, 40.5f, glm::vec3{ 0.f, -100.f, 0.f }, navMesh));
 
 
 	m_Scene->AddObject(CylindersBatch_01);
@@ -926,19 +939,6 @@ void VulkanBase::LoadScene()
 	m_Scene->AddObject(CylindersBatch_07);
 	m_Scene->AddObject(CylindersBatch_08);
 
-
-	// Batch 9
-	auto CylindersBatch_09{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
-	CylindersBatch_09->SetMaterial(lootBoxMat);
-	CylindersBatch_09->SetInstanceable(true);
-
-	{
-		CylindersBatch_09->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -484.f, -100.f, -816.f }), glm::radians(15.f), { 0.f, 1.f, 0.f }));
-		CylindersBatch_09->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -504.f, -100.f, -856.f }), glm::radians(30.f), { 0.f, 1.f, 0.f }));
-		CylindersBatch_09->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -528.f, -100.f, -823.f }), glm::radians(-25.f), { 0.f, 1.f, 0.f }));
-	}
-	CylindersBatch_09->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_09, true, 0));
-	CylindersBatch_09->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_09, 25.f, glm::vec3{ 0.f, 100.f, 0.f }));
 
 	// Batch 10
 	auto CylindersBatch_10{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
@@ -953,7 +953,7 @@ void VulkanBase::LoadScene()
 		CylindersBatch_10->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -664.f, -100.f, 240.f }), glm::radians(5.f), { 0.f, 1.f, 0.f }));
 	}
 	CylindersBatch_10->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_10, true, 0));
-	CylindersBatch_10->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_10, 8.f, glm::vec3{ 0.f, 100.f, 0.f }));
+	CylindersBatch_10->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_10, 6.5f, glm::vec3{ 0.f, 100.f, 0.f }, navMesh));
 
 	// Batch 11
 	auto CylindersBatch_11{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
@@ -966,7 +966,7 @@ void VulkanBase::LoadScene()
 		CylindersBatch_11->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { 320.f, -100.f, 879.f }), glm::radians(20.f), { 0.f, 1.f, 0.f }));
 	}
 	CylindersBatch_11->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_11, true, 0));
-	CylindersBatch_11->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_11, 15.f, glm::vec3{ 0.f, 100.f, 0.f }));
+	CylindersBatch_11->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_11, 17.5f, glm::vec3{ 0.f, 100.f, 0.f }, navMesh));
 
 	// Batch 12
 	auto CylindersBatch_12{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
@@ -981,7 +981,7 @@ void VulkanBase::LoadScene()
 		CylindersBatch_12->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { 601.f, -100.f, 525.f }), glm::radians(-20.f), { 0.f, 1.f, 0.f }));
 	}
 	CylindersBatch_12->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_12, true, 0));
-	CylindersBatch_12->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_12, 18.f, glm::vec3{ 0.f, 100.f, 0.f }));
+	CylindersBatch_12->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_12, 20.5f, glm::vec3{ 0.f, 100.f, 0.f }, navMesh));
 
 	// Batch 13
 	auto CylindersBatch_13{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
@@ -996,8 +996,20 @@ void VulkanBase::LoadScene()
 		CylindersBatch_13->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -53.f, -100.f, -858.f }), glm::radians(-175.f), { 0.f, 1.f, 0.f }));
 	}
 	CylindersBatch_13->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_13, true, 0));
-	CylindersBatch_13->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_13, 23.f, glm::vec3{ 0.f, 100.f, 0.f }));
+	CylindersBatch_13->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_13, 37.f, glm::vec3{ 0.f, 100.f, 0.f }, navMesh));
 
+	// Batch 9
+	auto CylindersBatch_09{ new Mesh("Resources/objs/Misc/LootCylinder.obj") };
+	CylindersBatch_09->SetMaterial(lootBoxMat);
+	CylindersBatch_09->SetInstanceable(true);
+
+	{
+		CylindersBatch_09->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -484.f, -100.f, -816.f }), glm::radians(15.f), { 0.f, 1.f, 0.f }));
+		CylindersBatch_09->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -504.f, -100.f, -856.f }), glm::radians(30.f), { 0.f, 1.f, 0.f }));
+		CylindersBatch_09->AddInstance(glm::rotate(glm::translate(glm::mat4{ 1.f }, { -528.f, -100.f, -823.f }), glm::radians(-25.f), { 0.f, 1.f, 0.f }));
+	}
+	CylindersBatch_09->AddComponent(std::make_shared<CollisionComponent>(CylindersBatch_09, true, 0));
+	CylindersBatch_09->AddComponent(std::make_shared<MovingObjectComponent>(CylindersBatch_09, 40.5f, glm::vec3{ 0.f, 100.f, 0.f }, navMesh));
 
 	m_Scene->AddObject(CylindersBatch_09);
 	m_Scene->AddObject(CylindersBatch_10);
@@ -1020,22 +1032,7 @@ void VulkanBase::LoadScene()
 
 	
 	
-	// NavMesh
-	auto redMat{ m_Scene->CreateMaterial() };
-	redMat->SetAlbedoString("Resources/texs/Red.png");
-	redMat->SetOpacityString("Resources/texs/Gray_02.png");
-
-	auto greenMat{ m_Scene->CreateMaterial() };
-	greenMat->SetAlbedoString("Resources/texs/Green.png");
-	greenMat->SetOpacityString("Resources/texs/Gray_02.png");
-
-
-	auto navMeshGenerator{ new NavMeshGenerator(m_Scene)};
-	auto pathFinder{ new PathFinder() };
-	auto navMesh{ new NavMesh(navMeshGenerator, pathFinder)};
-	
-	navMeshGenerator->SetMaterial(greenMat);
-	navMesh->SetMaterial(redMat);
+	// Add Navmesh to scene
 
 	m_Scene->AddObject(navMeshGenerator);
 	m_Scene->AddObject(pathFinder);
@@ -1047,7 +1044,7 @@ void VulkanBase::LoadScene()
 
 	// AI guy
 	auto ai{ new Mesh("Resources/objs/Wall_e.obj") };
-	ai->SetPosition({ 0.f, 150.f, 950.f });
+	ai->SetPosition({ 0.f, 0.f, 950.f });
 	ai->SetScale({ 0.4f, 0.4f, 0.4f });
 
 	ai->SetMaterial(m_Scene->CreateMaterial());
@@ -1057,8 +1054,9 @@ void VulkanBase::LoadScene()
 	ai->AddComponent(aiCollision);
 	
 	auto aiMovementComp{ std::make_shared<AIMovementComponent>(ai, navMesh) };
+	navMesh->AddObserver(new Observer(GameEvents::NavMeshChanged, [aiMovementComp]() {aiMovementComp->RecalculateCurrentPath(); }));
 	
-	std::vector<glm::vec3> path{ {-650.f, 0.f, -700.f}, {-570.f, 0.f, 800.f}, {650.f, 0.f, 800.f}, {650.f, 0.f, -800.f}, {-650.f, 0.f, -700.f} };
+	std::vector<glm::vec3> path{ {-690.f, 0.f, -740.f}, {-570.f, 0.f, 800.f}, {650.f, 0.f, 800.f}, {650.f, 0.f, -800.f}, {-650.f, 0.f, -700.f} };
 	aiMovementComp->SetFollowPath(path);
 	
 	ai->AddComponent(aiMovementComp);

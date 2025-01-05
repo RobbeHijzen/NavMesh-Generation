@@ -15,6 +15,8 @@ public:
 
 	void AIMoveTo(glm::vec3 pos);
 
+	void RecalculateCurrentPath();
+
 private:
 
 	NavMesh* m_NavMesh{};
@@ -34,7 +36,7 @@ private:
 	glm::vec3 m_Velocity{};
 	const float m_MoveSpeed{ 150.f };
 
-	float m_Gravity{ 981.f };
+	float m_Gravity{ 0.f };
 
 	bool m_IsOnGround{ true };
 

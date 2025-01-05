@@ -8,6 +8,7 @@ class NavMeshGenerator : public Object, public IRenderable
 public:
 
 	NavMeshGenerator(Scene* scene);
+
 	std::vector<NavMeshStructs::VoxelNode> GenerateNavMesh();
 	const NavMeshStructs::Voxel* GetVoxelFromPosition(glm::vec3 position) const;
 
@@ -17,6 +18,8 @@ public:
 	const std::vector<NavMeshStructs::VoxelNode>& GetVoxelNodes() const { return m_VoxelNodes; }
 
 	glm::vec3 GetVoxelSize() const;
+
+
 
 private:
 
@@ -67,7 +70,7 @@ private:
 	virtual void Render(VkCommandBuffer buffer) const override { vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0); }
 
 	virtual PipelinesEnum GetPipelineID() const override { return PipelinesEnum::opacity; }
-	virtual bool IsHidden() const override { return false; }
+	virtual bool IsHidden() const override { return true; }
 
 	Material* m_Material{};
 

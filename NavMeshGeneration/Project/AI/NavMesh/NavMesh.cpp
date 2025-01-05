@@ -10,6 +10,15 @@ NavMesh::NavMesh(NavMeshGenerator* navMeshGenerator, PathFinder* pathFinder)
 {
 }
 
+void NavMesh::Update(GLFWwindow* window)
+{
+	if (m_IsNavMeshDirty)
+	{
+		m_IsNavMeshDirty = false;
+		GenerateNavMesh();
+	}
+}
+
 std::vector<glm::vec3> NavMesh::GeneratePath(glm::vec3 startPoint, glm::vec3 endPoint)
 {
 	const Voxel* startVoxel{};
@@ -61,7 +70,6 @@ std::vector<glm::vec3> NavMesh::GeneratePath(glm::vec3 startPoint, glm::vec3 end
 	
 	auto path{ m_PathFinder->GetPath(m_VoxelNodes, m_PathFinder->GetVoxelNodeFromVoxel(m_VoxelNodes, startVoxel), m_PathFinder->GetVoxelNodeFromVoxel(m_VoxelNodes, endVoxel))};
 	FillVerticesAndIndices(path);
-	//FillVerticesAndIndices({startVoxel, endVoxel});
 
 	std::vector<glm::vec3> vec3Path{};
 	for (const auto& node : path)
@@ -118,6 +126,7 @@ void NavMesh::GenerateRandomPathsTest(int amount)
 void NavMesh::GenerateNavMesh()
 {
 	m_VoxelNodes = m_NavMeshGenerator->GenerateNavMesh();
+	NotifyObservers(GameEvents::NavMeshChanged);
 }
 
 void NavMesh::GenerateNavMeshesTest(int amount)

@@ -14,7 +14,7 @@ void AIMovementComponent::Update(GLFWwindow* window)
 
 	GetOwner()->SetVelocity(m_Velocity * m_MoveSpeed);
 
-	float angle{ glm::atan(m_Velocity.z / m_Velocity.x) + PI / 2.f };
+	float angle{ glm::atan(m_Velocity.z, -m_Velocity.x) + (PI / 2.f)};
 	GetOwner()->SetRotation({ 0.f, angle, 0.f });
 }
 
@@ -44,27 +44,42 @@ void AIMovementComponent::AIMoveTo(glm::vec3 pos)
 	m_CurrentMoveToPathIndex = 0;
 }
 
+void AIMovementComponent::RecalculateCurrentPath()
+{
+	if (m_IsFollowingAIPath)
+	{
+		AIMoveTo(m_CurrentFollowPath[m_CurrentFollowPathIndex]);
+	}
+}
+
 void AIMovementComponent::HandleAIMovement()
 {
 	if (m_IsFollowingAIPath)
 	{
-		if (IsOnPoint(m_CurrentFollowPath[m_CurrentFollowPathIndex], 1.f))
+		if (IsOnPoint(m_CurrentFollowPath[m_CurrentFollowPathIndex], 15.f))
 		{
-			m_CurrentFollowPathIndex = ++m_CurrentFollowPathIndex;
+			++m_CurrentFollowPathIndex;
 			if (m_CurrentFollowPathIndex >= m_CurrentFollowPath.size())
 			{
 				m_IsFollowingAIPath = false;
+				m_Velocity = {};
 				return;
 			}
 
 			AIMoveTo(m_CurrentFollowPath[m_CurrentFollowPathIndex]);
 		}
-		else if(IsOnPoint(m_CurrentMoveToPath[m_CurrentMoveToPathIndex], 1.f))
+		else if(IsOnPoint(m_CurrentMoveToPath[m_CurrentMoveToPathIndex], 15.f))
 		{
 			++m_CurrentMoveToPathIndex;
 			if (m_CurrentMoveToPathIndex >= m_CurrentMoveToPath.size())
 			{
-				m_CurrentFollowPathIndex = ++m_CurrentFollowPathIndex % m_CurrentFollowPath.size();
+				++m_CurrentFollowPathIndex;
+				if (m_CurrentFollowPathIndex >= m_CurrentFollowPath.size())
+				{
+					m_IsFollowingAIPath = false;
+					m_Velocity = {};					
+					return;
+				}
 				AIMoveTo(m_CurrentFollowPath[m_CurrentFollowPathIndex]);
 			}
 		}
