@@ -20,7 +20,7 @@ layout(location = 0) out vec4 outColor;
 vec3 G_SunLightDirection = normalize(vec3(0.577, 0.577, 0.557));
 //vec3 G_SunLightColor = vec3(1.0, 0.9, 0.7);
 vec3 G_SunLightColor = vec3(1.0, 1.0, 1.0);
-float G_SunLightIntensity = 1;
+float G_SunLightIntensity = 3;
 
 float G_AmbientIntensity = 0.03;
 

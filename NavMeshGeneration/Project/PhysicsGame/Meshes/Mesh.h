@@ -41,6 +41,12 @@ public:
 	void SetMaterial(Material* material) { m_Material = material; }
 	Material* GetMaterial() const override { return m_Material; }
 
+	virtual bool IsInstanceable() const override { return m_IsInstanceable; }
+	virtual std::vector<glm::mat4> GetModelMatrices() const override { return m_InstancedModelMatrices; }
+
+	void SetInstanceable(bool newInstanceable) { m_IsInstanceable = newInstanceable; }
+	void AddInstance(glm::mat4 newMatrix) { m_InstancedModelMatrices.emplace_back(newMatrix); }
+
 	//----------
 	// Transformation Handling
 	//----------
@@ -92,6 +98,10 @@ private:
 
 	void CalculateWorldMatrix();
 
+	// Instance Handling
+	std::vector<glm::mat4> m_InstancedModelMatrices{};
+	bool m_IsInstanceable{ false };
+
 	//-----------
 	// Movement Handling
 	//-----------
@@ -104,4 +114,6 @@ private:
 
 	// Observers
 	std::vector<std::shared_ptr<Observer>> m_Observers{};
+
+
 };

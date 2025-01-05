@@ -1,0 +1,34 @@
+# Aspose.3D Wavefront OBJ Exporter
+# Copyright 2004-2024 Aspose Pty Ltd.
+# File created: 01/03/2025 11:28:41
+
+mtllib material.lib
+g Room_Wall_01
+
+#
+# object Room_Wall_01
+#
+
+v -250 -250 50
+v 250 -250 50
+v -250 250 50
+v 250 250 50
+# 4 vertices
+
+vn 0 0 1
+vn 0 0 1
+vn 0 0 1
+vn 0 0 1
+# 4 vertex normals
+
+vt -6.8661757E-07 1.6107224E-06 0
+vt 0.99999934 1.6107224E-06 0
+vt 0.99999934 1.0000018 0
+vt -6.8661757E-07 1.0000018 0
+# 4 texture coords
+
+usemtl lambert1
+s 1
+f 1/1/1 2/2/2 4/3/4 3/4/3
+#1 polygons
+

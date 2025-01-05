@@ -23,7 +23,10 @@ public:
 	virtual uint32_t GetRenderID() const override { return m_RenderID.value(); }
 	virtual void SetRenderID(uint32_t index) override { m_RenderID = index; }
 
-	virtual void Render(VkCommandBuffer buffer) const override { vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0); }
+	virtual void Render(VkCommandBuffer buffer) const override 
+	{ 
+		vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0); 
+	}
 
 	virtual PipelinesEnum GetPipelineID() const override { return PipelinesEnum::opacity; }
 	virtual bool IsHidden() const override { return true; }
@@ -43,7 +46,7 @@ private:
 
 	void FillVerticesAndIndices(std::vector<const NavMeshStructs::Voxel*> path);
 
-	float m_RenderHeightOffset{ 0.5f };
+	float m_RenderHeightOffset{ 0.6f };
 
 	std::vector<Vertex> m_Vertices{ {{0.f, 0.f, 0.f}} };
 	std::vector<uint32_t> m_Indices{0, 0, 0};

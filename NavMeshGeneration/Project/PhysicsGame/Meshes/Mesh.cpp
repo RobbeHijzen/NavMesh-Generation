@@ -30,6 +30,14 @@ void Mesh::Update(GLFWwindow* window)
 void Mesh::AddPosition(glm::vec3 addedPos)
 {
     SetPosition(m_WorldPos + addedPos);
+
+    if (m_IsInstanceable)
+    {
+        for (auto& modelMatrix : m_InstancedModelMatrices)
+        {
+            modelMatrix = glm::translate(modelMatrix, addedPos);
+        }
+    }
 }
 
 void Mesh::AddRotation(glm::vec3 addedRot)

@@ -100,7 +100,7 @@ void NavMeshGenerator::FillHeightMap()
 	for (int index{}; index < m_VoxelsAmountX * m_VoxelsAmountZ; ++index)
 	{
 		HeightMapPixel hmp{ m_Voxels, index * m_VoxelsAmountY, m_VoxelsAmountY };
-		hmp.SetAgentHeight(2);
+		hmp.SetAgentHeight(6);
 
 		m_HeightMap.emplace_back(hmp);
 	}
@@ -212,20 +212,26 @@ void NavMeshGenerator::FillVerticesAndIndices()
 
 	for(const auto& walkableVoxelIndex : m_WalkableVoxelsIndices)
 	{
-			size_t sizeBefore{ m_Vertices.size() };
+		if (m_Voxels[walkableVoxelIndex].bounds.min.y > 6.f) continue;
+		size_t sizeBefore{ m_Vertices.size() };
 
-			m_Vertices.emplace_back(Vertex{ {m_Voxels[walkableVoxelIndex].bounds.min.x, m_Voxels[walkableVoxelIndex].bounds.max.y + m_RenderHeightOffset, m_Voxels[walkableVoxelIndex].bounds.min.z}});
-			m_Vertices.emplace_back(Vertex{ {m_Voxels[walkableVoxelIndex].bounds.min.x, m_Voxels[walkableVoxelIndex].bounds.max.y + m_RenderHeightOffset, m_Voxels[walkableVoxelIndex].bounds.max.z} });
-			m_Vertices.emplace_back(Vertex{ {m_Voxels[walkableVoxelIndex].bounds.max.x, m_Voxels[walkableVoxelIndex].bounds.max.y + m_RenderHeightOffset, m_Voxels[walkableVoxelIndex].bounds.min.z} });
-			m_Vertices.emplace_back(Vertex{ {m_Voxels[walkableVoxelIndex].bounds.max.x, m_Voxels[walkableVoxelIndex].bounds.max.y + m_RenderHeightOffset, m_Voxels[walkableVoxelIndex].bounds.max.z} });
+		m_Vertices.emplace_back(Vertex{ {m_Voxels[walkableVoxelIndex].bounds.min.x, m_Voxels[walkableVoxelIndex].bounds.max.y + m_RenderHeightOffset, m_Voxels[walkableVoxelIndex].bounds.min.z}});
+		m_Vertices.emplace_back(Vertex{ {m_Voxels[walkableVoxelIndex].bounds.min.x, m_Voxels[walkableVoxelIndex].bounds.max.y + m_RenderHeightOffset, m_Voxels[walkableVoxelIndex].bounds.max.z} });
+		m_Vertices.emplace_back(Vertex{ {m_Voxels[walkableVoxelIndex].bounds.max.x, m_Voxels[walkableVoxelIndex].bounds.max.y + m_RenderHeightOffset, m_Voxels[walkableVoxelIndex].bounds.min.z} });
+		m_Vertices.emplace_back(Vertex{ {m_Voxels[walkableVoxelIndex].bounds.max.x, m_Voxels[walkableVoxelIndex].bounds.max.y + m_RenderHeightOffset, m_Voxels[walkableVoxelIndex].bounds.max.z} });
 
-			m_Indices.emplace_back(sizeBefore);
-			m_Indices.emplace_back(sizeBefore + 1);
-			m_Indices.emplace_back(sizeBefore + 2);
+		m_Indices.emplace_back(sizeBefore);
+		m_Indices.emplace_back(sizeBefore + 1);
+		m_Indices.emplace_back(sizeBefore + 2);
 
-			m_Indices.emplace_back(sizeBefore + 1);
-			m_Indices.emplace_back(sizeBefore + 2);
-			m_Indices.emplace_back(sizeBefore + 3);
+		m_Indices.emplace_back(sizeBefore + 1);
+		m_Indices.emplace_back(sizeBefore + 2);
+		m_Indices.emplace_back(sizeBefore + 3);
 	}
 
+	if (m_Vertices.size() == 0 || m_Indices.size() == 0)
+	{
+		m_Vertices = { {{0.f, 0.f, 0.f}} };
+		m_Indices = { 0, 0, 0 };
+	}
 }

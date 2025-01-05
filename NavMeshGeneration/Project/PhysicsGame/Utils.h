@@ -67,6 +67,7 @@ static bool ParseOBJ(const std::string& filename, std::vector<Vertex>& vertices,
 			{
 				// Read the position index
 				file >> iPosition;
+
 				vertex.pos = positions[iPosition - 1];  // OBJ is 1-based, adjust to 0-based
 
 				if ('/' == file.peek()) 
@@ -76,6 +77,7 @@ static bool ParseOBJ(const std::string& filename, std::vector<Vertex>& vertices,
 					if ('/' != file.peek()) 
 					{ 
 						file >> iTexCoord;
+
 						vertex.texCoord = UVs[iTexCoord - 1];
 					}
 
@@ -83,6 +85,7 @@ static bool ParseOBJ(const std::string& filename, std::vector<Vertex>& vertices,
 					{ 
 						file.ignore();
 						file >> iNormal;
+
 						vertex.normal = normals[iNormal - 1];
 					}
 				}

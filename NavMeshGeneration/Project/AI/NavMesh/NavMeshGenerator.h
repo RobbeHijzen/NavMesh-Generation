@@ -20,10 +20,10 @@ public:
 
 private:
 
-	AABB m_Boundaries{ {-1000.f, -1000.f, -1000.f}, {1000.f, 1000.f, 1000.f} };
-	int m_VoxelsAmountX{100};
+	AABB m_Boundaries{ {-1500.f, -400.f, -1500.f}, {1500.f, 400.f, 1500.f} };
+	int m_VoxelsAmountX{75};
 	int m_VoxelsAmountY{51};
-	int m_VoxelsAmountZ{100};
+	int m_VoxelsAmountZ{75};
 	
 	std::vector<NavMeshStructs::Voxel> m_Voxels{};
 
@@ -67,7 +67,7 @@ private:
 	virtual void Render(VkCommandBuffer buffer) const override { vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0); }
 
 	virtual PipelinesEnum GetPipelineID() const override { return PipelinesEnum::opacity; }
-	virtual bool IsHidden() const override { return true; }
+	virtual bool IsHidden() const override { return false; }
 
 	Material* m_Material{};
 

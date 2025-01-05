@@ -10,7 +10,7 @@ class CollisionComponent : public BaseComponent , public IRenderable
 {
 public:
 
-	CollisionComponent(Mesh* pParent, bool isStaticMesh, int aabbDepth);
+	CollisionComponent(Mesh* pParent, bool isStaticMesh, int aabbDepth, bool calculateAABBs = true);
 	virtual void GameStart() override;
 
 	bool HasStaticCollision() const { return m_HasStaticCollision; }
@@ -35,6 +35,8 @@ public:
 	bool IsHidden() const override { return m_IsHidden; }
 	void SetHidden(bool newHidden) { m_IsHidden = newHidden; }
 
+	void SetAABBs(std::vector<AABB> newAABBs, bool transformAABBs = false) { m_AABBs = newAABBs; m_UsePresetAABBs = !transformAABBs; CalculateTransformedAABBs(); m_ModelMatrices.resize(m_AABBs.size()); }
+
 private:
 
 	bool m_IsHidden{ true };
@@ -43,6 +45,7 @@ private:
 	void UpdateModelMatrix();
 
 	bool m_HasStaticCollision;
+	bool m_UsePresetAABBs{ false };
 
 	std::vector<AABB> m_AABBs{};
 	std::vector<AABB> m_TransformedAABBs{};

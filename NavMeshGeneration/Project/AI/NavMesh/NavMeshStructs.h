@@ -80,7 +80,7 @@ namespace NavMeshStructs
 
 				if (index == m_Spans.size() - 1) m_WalkableIndices.emplace_back(span.startIndex + span.amount - 1);
 
-				if (m_Spans[index + 1].amount < m_AgentHeightInVoxels) { ++index; continue; }
+				else  if (m_Spans[index + 1].amount < m_AgentHeightInVoxels) { ++index; continue; }
 
 				m_WalkableIndices.emplace_back(span.startIndex + span.amount - 1);
 			}

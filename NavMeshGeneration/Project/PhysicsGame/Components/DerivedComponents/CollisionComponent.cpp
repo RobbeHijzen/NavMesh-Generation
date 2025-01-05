@@ -5,7 +5,7 @@
 #include <numeric>
 #include <fstream>
 
-CollisionComponent::CollisionComponent(Mesh* pParent, bool isStaticMesh, int aabbDepth)
+CollisionComponent::CollisionComponent(Mesh* pParent, bool isStaticMesh, int aabbDepth, bool calculateAABBs)
     : BaseComponent(pParent)
     , m_HasStaticCollision{ isStaticMesh }
 {
@@ -17,10 +17,13 @@ CollisionComponent::CollisionComponent(Mesh* pParent, bool isStaticMesh, int aab
     obs = new Observer(GameEvents::ModelMatrixChanged, [&] { this->UpdateModelMatrix(); });
     pParent->AddObserver(obs);
 
-    m_AABBs = AABBCalculator::CalculateAABBs(GetOwner()->GetVertices(), GetOwner()->GetIndices(), aabbDepth);
-    CalculateTransformedAABBs();
+    if (calculateAABBs)
+    {
+        m_AABBs = AABBCalculator::CalculateAABBs(GetOwner()->GetVertices(), GetOwner()->GetIndices(), aabbDepth);
+        CalculateTransformedAABBs();
 
-    m_ModelMatrices.resize(m_AABBs.size());
+        m_ModelMatrices.resize(m_AABBs.size());
+    }
 }
 
 void CollisionComponent::GameStart()
@@ -51,50 +54,72 @@ void CollisionComponent::UpdateModelMatrix()
 void CollisionComponent::CalculateTransformedAABBs()
 {
     // This transforms the 8 vertices according to the transform of the triangleMesh
-    auto modelMatrix{GetOwner()->GetModelMatrix()};
 
-    m_TransformedAABBs.resize(m_AABBs.size());
+    std::vector<glm::mat4> modelMatrices{};
 
-    for (int i{}; i < m_AABBs.size(); ++i)
+    if (m_UsePresetAABBs)
     {
-        glm::vec3 min{ m_AABBs[i].min};
-        glm::vec3 max{ m_AABBs[i].max};
+        modelMatrices.emplace_back(glm::mat4{ 1 });
+    }
+    else if (GetOwner()->IsInstanceable())
+    {
+        for (const auto& matrix : GetOwner()->GetModelMatrices())
+        {
+            modelMatrices.emplace_back(matrix);
+        }
+    }
+    else
+    {
+        modelMatrices.emplace_back(GetOwner()->GetModelMatrix());
+    }
 
-        // Begin
-        glm::vec3 tMinAABB = modelMatrix * glm::vec4{ min, 1.f };
-        glm::vec3 tMaxAABB = tMinAABB;
+    m_TransformedAABBs.resize(m_AABBs.size() * modelMatrices.size());
 
-        // (xMax, yMin, zMin)
-        glm::vec3 tAABB = modelMatrix * glm::vec4{ max.x, min.y, min.z, 1.f };
-        tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
-        tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
-        // (xMax, yMin, zMax)
-        tAABB = modelMatrix * glm::vec4{ max.x, min.y, max.z, 1.f };
-        tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
-        tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
-        // (xMin, yMin, zMax)
-        tAABB = modelMatrix * glm::vec4{ min.x, min.y, max.z, 1.f };
-        tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
-        tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
-        // (xMin, yMax, zMin)
-        tAABB = modelMatrix * glm::vec4{ min.x, max.y, min.z, 1.f };
-        tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
-        tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
-        // (xMax, yMax, zMin)
-        tAABB = modelMatrix * glm::vec4{ max.x, max.y, min.z, 1.f };
-        tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
-        tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
-        // (xMax, yMax, zMax)
-        tAABB = modelMatrix * glm::vec4{ max.x, max.y, max.z, 1.f };
-        tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
-        tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
-        // (xMin, yMax, zMax)
-        tAABB = modelMatrix * glm::vec4{ min.x, max.y, max.z, 1.f };
-        tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
-        tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
+    for (int j{}; j < modelMatrices.size(); ++j)
+    {
+        const auto& modelMatrix{ modelMatrices[j]};
 
-        m_TransformedAABBs[i].min = tMinAABB;
-        m_TransformedAABBs[i].max = tMaxAABB;
+        for (int i{}; i < m_AABBs.size(); ++i)
+        {
+            glm::vec3 min{ m_AABBs[i].min };
+            glm::vec3 max{ m_AABBs[i].max };
+
+            // Begin
+            glm::vec3 tMinAABB = modelMatrix * glm::vec4{ min, 1.f };
+            glm::vec3 tMaxAABB = tMinAABB;
+
+            // (xMax, yMin, zMin)
+            glm::vec3 tAABB = modelMatrix * glm::vec4{ max.x, min.y, min.z, 1.f };
+            tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
+            tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
+            // (xMax, yMin, zMax)
+            tAABB = modelMatrix * glm::vec4{ max.x, min.y, max.z, 1.f };
+            tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
+            tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
+            // (xMin, yMin, zMax)
+            tAABB = modelMatrix * glm::vec4{ min.x, min.y, max.z, 1.f };
+            tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
+            tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
+            // (xMin, yMax, zMin)
+            tAABB = modelMatrix * glm::vec4{ min.x, max.y, min.z, 1.f };
+            tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
+            tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
+            // (xMax, yMax, zMin)
+            tAABB = modelMatrix * glm::vec4{ max.x, max.y, min.z, 1.f };
+            tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
+            tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
+            // (xMax, yMax, zMax)
+            tAABB = modelMatrix * glm::vec4{ max.x, max.y, max.z, 1.f };
+            tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
+            tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
+            // (xMin, yMax, zMax)
+            tAABB = modelMatrix * glm::vec4{ min.x, max.y, max.z, 1.f };
+            tMinAABB = AABBCalculator::MinVec(tAABB, tMinAABB);
+            tMaxAABB = AABBCalculator::MaxVec(tAABB, tMaxAABB);
+
+            m_TransformedAABBs[i + j * m_AABBs.size()].min = tMinAABB;
+            m_TransformedAABBs[i + j * m_AABBs.size()].max = tMaxAABB;
+        }
     }
 }
 

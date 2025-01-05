@@ -9,6 +9,7 @@
 #include "PhysicsGame/Collision/CollisionFixer.h"
 #include "PhysicsGame/Components/DerivedComponents/MovementComponent.h" 
 #include "PhysicsGame/Components/DerivedComponents/AIMovementComponent.h" 
+#include "PhysicsGame/Components/DerivedComponents/MovingObjectComponent.h" 
 
 #include "PhysicsGame/Camera.h"
 

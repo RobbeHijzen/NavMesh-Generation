@@ -21,6 +21,7 @@ std::vector<glm::vec3> NavMesh::GeneratePath(glm::vec3 startPoint, glm::vec3 end
 	for (; currentIteration < maxIterations; ++currentIteration)
 	{
 		startVoxel = m_NavMeshGenerator->GetVoxelFromPosition(startPoint);
+		if (!startVoxel) return {};
 
 		if (startVoxel->type == NavMeshStructs::VoxelTypes::Walkable)
 		{
@@ -41,6 +42,7 @@ std::vector<glm::vec3> NavMesh::GeneratePath(glm::vec3 startPoint, glm::vec3 end
 	for (; currentIteration < maxIterations; ++currentIteration)
 	{
 		endVoxel = m_NavMeshGenerator->GetVoxelFromPosition(endPoint);
+		if (!endVoxel) return {};
 
 		if (endVoxel->type == NavMeshStructs::VoxelTypes::Walkable)
 		{
@@ -59,6 +61,7 @@ std::vector<glm::vec3> NavMesh::GeneratePath(glm::vec3 startPoint, glm::vec3 end
 	
 	auto path{ m_PathFinder->GetPath(m_VoxelNodes, m_PathFinder->GetVoxelNodeFromVoxel(m_VoxelNodes, startVoxel), m_PathFinder->GetVoxelNodeFromVoxel(m_VoxelNodes, endVoxel))};
 	FillVerticesAndIndices(path);
+	//FillVerticesAndIndices({startVoxel, endVoxel});
 
 	std::vector<glm::vec3> vec3Path{};
 	for (const auto& node : path)
