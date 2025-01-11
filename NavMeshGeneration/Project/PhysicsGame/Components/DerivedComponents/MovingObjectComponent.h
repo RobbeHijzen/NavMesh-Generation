@@ -2,8 +2,10 @@
 
 #include "Vulkanbase/Helperstructs/BaseComponent.h"
 #include "PhysicsGame/Meshes/Mesh.h"
+#include "VulkanBase/HelperStructs/HelperStructs.h"
 
 class NavMesh;
+class CollisionComponent;
 
 class MovingObjectComponent : public BaseComponent
 {
@@ -34,4 +36,9 @@ private:
 
 	bool m_UpdateNavmeshEveryFrame{ false };
 	bool m_UpdateNavmeshOnMovementCompleted{ true };
+
+	bool m_UpdateNavmeshLocally{ true };
+	std::vector<AABB> m_LastNavMeshUpdateAreas{};
+
+	CollisionComponent* m_CollisionComp{};
 };

@@ -26,6 +26,22 @@ std::vector<VoxelNode> NavMeshGenerator::GenerateNavMesh()
 	return m_VoxelNodes;
 }
 
+std::vector<NavMeshStructs::VoxelNode> NavMeshGenerator::GenerateNavMeshLocally(std::vector<AABB> areas)
+{
+	for (const auto& area : areas)
+	{
+		CheckForVoxelCollisions(area);
+	}
+
+	FillHeightMap();
+	FillWalkableVoxels();
+	CreateVoxelNodes();
+
+	FillVerticesAndIndices();
+
+	return m_VoxelNodes;
+}
+
 const NavMeshStructs::Voxel* NavMeshGenerator::GetVoxelFromPosition(glm::vec3 position) const
 {
 	if (!m_Boundaries.Contains(position)) return nullptr;
@@ -70,7 +86,15 @@ void NavMeshGenerator::InitializeVoxels()
 
 void NavMeshGenerator::CheckForVoxelCollisions()
 {
-	
+	CheckForVoxelCollisions(m_Boundaries);
+}
+
+void NavMeshGenerator::CheckForVoxelCollisions(const AABB& area)
+{
+	auto voxels{ GetVoxelsFromArea(area) };
+	for (auto voxel : voxels)
+		voxel->type = VoxelTypes::Empty;
+
 	for (const auto& object : m_Scene->GetObjects())
 	{
 		if (auto collision = object->GetComponent<CollisionComponent>())
@@ -79,13 +103,16 @@ void NavMeshGenerator::CheckForVoxelCollisions()
 
 			for (const auto& aabb : collision->GetAABBs())
 			{
-				for (auto& voxel : m_Voxels)
+				if (area.AreColliding(aabb))
 				{
-					if (voxel.type == VoxelTypes::Solid) continue;
-
-					if (voxel.bounds.AreColliding(aabb))
+					for (auto voxel : voxels)
 					{
-						voxel.type = VoxelTypes::Solid;
+						if (voxel->type == VoxelTypes::Solid) continue;
+
+						if (voxel->bounds.AreColliding(aabb))
+						{
+							voxel->type = VoxelTypes::Solid;
+						}
 					}
 				}
 			}
@@ -95,6 +122,7 @@ void NavMeshGenerator::CheckForVoxelCollisions()
 
 void NavMeshGenerator::FillHeightMap()
 {
+	m_HeightMap.clear();
 	m_HeightMap.reserve(m_VoxelsAmountX * m_VoxelsAmountZ);
 
 	for (int index{}; index < m_VoxelsAmountX * m_VoxelsAmountZ; ++index)
@@ -108,6 +136,8 @@ void NavMeshGenerator::FillHeightMap()
 
 void NavMeshGenerator::FillWalkableVoxels()
 {
+	m_WalkableVoxelsIndices.clear();
+
 	for (const auto& heightMapPixel : m_HeightMap)
 	{
 		for (const auto& idx : heightMapPixel.GetWalkableIndices())
@@ -120,6 +150,7 @@ void NavMeshGenerator::FillWalkableVoxels()
 
 void NavMeshGenerator::CreateVoxelNodes()
 {
+	m_VoxelNodes.clear();
 	m_VoxelNodes.reserve(m_Voxels.size());
 
 	for (const auto& walkableVoxelIndex : m_WalkableVoxelsIndices)
@@ -142,7 +173,7 @@ std::vector<const Voxel*> NavMeshGenerator::GetNeighborsFromVoxelIndex(int index
 	if (xyz.x > 0)
 	{
 		Voxel* voxel{ &m_Voxels[GetIndexFromXYZ(xyz.x - 1, xyz.y, xyz.z)] };
-		if (voxel->type == VoxelTypes::Walkable)
+		//if (voxel->type == VoxelTypes::Walkable)
 		{
 			neighbors.emplace_back(voxel);
 		}
@@ -152,7 +183,7 @@ std::vector<const Voxel*> NavMeshGenerator::GetNeighborsFromVoxelIndex(int index
 	if (xyz.x < m_VoxelsAmountX - 1)
 	{
 		Voxel* voxel{ &m_Voxels[GetIndexFromXYZ(xyz.x + 1, xyz.y, xyz.z)] };
-		if (voxel->type == VoxelTypes::Walkable)
+		//if (voxel->type == VoxelTypes::Walkable)
 		{
 			neighbors.emplace_back(voxel);
 		}
@@ -162,7 +193,7 @@ std::vector<const Voxel*> NavMeshGenerator::GetNeighborsFromVoxelIndex(int index
 	if (xyz.z > 0)
 	{
 		Voxel* voxel{ &m_Voxels[GetIndexFromXYZ(xyz.x, xyz.y, xyz.z - 1)] };
-		if (voxel->type == VoxelTypes::Walkable)
+		//if (voxel->type == VoxelTypes::Walkable)
 		{
 			neighbors.emplace_back(voxel);
 		}
@@ -172,7 +203,7 @@ std::vector<const Voxel*> NavMeshGenerator::GetNeighborsFromVoxelIndex(int index
 	if (xyz.z < m_VoxelsAmountZ - 1)
 	{
 		Voxel* voxel{ &m_Voxels[GetIndexFromXYZ(xyz.x, xyz.y, xyz.z + 1)] };
-		if (voxel->type == VoxelTypes::Walkable)
+		//if (voxel->type == VoxelTypes::Walkable)
 		{
 			neighbors.emplace_back(voxel);
 		}
@@ -182,7 +213,7 @@ std::vector<const Voxel*> NavMeshGenerator::GetNeighborsFromVoxelIndex(int index
 	if (xyz.x > 0 && xyz.z > 0)
 	{
 		Voxel* voxel{ &m_Voxels[GetIndexFromXYZ(xyz.x - 1, xyz.y, xyz.z - 1)] };
-		if (voxel->type == VoxelTypes::Walkable)
+		//if (voxel->type == VoxelTypes::Walkable)
 		{
 			neighbors.emplace_back(voxel);
 		}
@@ -192,7 +223,7 @@ std::vector<const Voxel*> NavMeshGenerator::GetNeighborsFromVoxelIndex(int index
 	if (xyz.x > 0 && xyz.z < m_VoxelsAmountZ - 1)
 	{
 		Voxel* voxel{ &m_Voxels[GetIndexFromXYZ(xyz.x - 1, xyz.y, xyz.z + 1)] };
-		if (voxel->type == VoxelTypes::Walkable)
+		//if (voxel->type == VoxelTypes::Walkable)
 		{
 			neighbors.emplace_back(voxel);
 		}
@@ -202,7 +233,7 @@ std::vector<const Voxel*> NavMeshGenerator::GetNeighborsFromVoxelIndex(int index
 	if (xyz.x < m_VoxelsAmountX - 1 && xyz.z > 0)
 	{
 		Voxel* voxel{ &m_Voxels[GetIndexFromXYZ(xyz.x + 1, xyz.y, xyz.z - 1)] };
-		if (voxel->type == VoxelTypes::Walkable)
+		//if (voxel->type == VoxelTypes::Walkable)
 		{
 			neighbors.emplace_back(voxel);
 		}
@@ -212,13 +243,43 @@ std::vector<const Voxel*> NavMeshGenerator::GetNeighborsFromVoxelIndex(int index
 	if (xyz.x < m_VoxelsAmountX - 1 && xyz.z < m_VoxelsAmountZ - 1)
 	{
 		Voxel* voxel{ &m_Voxels[GetIndexFromXYZ(xyz.x + 1, xyz.y, xyz.z + 1)] };
-		if (voxel->type == VoxelTypes::Walkable)
+		//if (voxel->type == VoxelTypes::Walkable)
 		{
 			neighbors.emplace_back(voxel);
 		}
 	}
 	
 	return neighbors;
+}
+
+std::vector<NavMeshStructs::Voxel*> NavMeshGenerator::GetVoxelsFromArea(const AABB& area)
+{
+	std::vector<Voxel*> result{};
+
+	auto min{ GetVoxelXYZFromPosition(area.min) };
+	auto max{ GetVoxelXYZFromPosition(area.max) };
+
+	for (int x{ min.x }; x <= max.x; ++x)
+	{
+		for (int y{ min.y }; y <= max.y; ++y)
+		{
+			for (int z{ min.z }; z <= max.z; ++z)
+			{
+				result.emplace_back(&m_Voxels[GetIndexFromXYZ(x, y, z)]);
+			}
+		}
+	}
+
+	return result;
+}
+
+glm::i32vec3 NavMeshGenerator::GetVoxelXYZFromPosition(glm::vec3 position) const
+{
+	position -= m_Boundaries.min;
+	position /= (m_Boundaries.max - m_Boundaries.min);
+
+	glm::i32vec3 result{ std::clamp(int(position.x * m_VoxelsAmountX), 0, m_VoxelsAmountX - 1), std::clamp(int(position.y * m_VoxelsAmountY), 0, m_VoxelsAmountY - 1), std::clamp(int(position.z * m_VoxelsAmountZ), 0, m_VoxelsAmountZ - 1) };
+	return result;
 }
 
 glm::i32vec3 NavMeshGenerator::GetXYZFromIndex(int index) const

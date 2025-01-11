@@ -82,4 +82,8 @@ struct AABB
 		return min + ((max - min) / 2.f);
 	}
 
+	AABB Merge(const AABB& other)
+	{
+		return AABB{ {std::min(min.x, other.min.x), std::min(min.y, other.min.y), std::min(min.z, other.min.z)}, {std::max(max.x, other.max.x), std::max(max.y, other.max.y), std::max(max.z, other.max.z)} };
+	}
 };

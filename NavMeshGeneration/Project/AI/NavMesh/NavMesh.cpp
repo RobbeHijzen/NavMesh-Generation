@@ -15,7 +15,21 @@ void NavMesh::Update(GLFWwindow* window)
 	if (m_IsNavMeshDirty)
 	{
 		m_IsNavMeshDirty = false;
-		GenerateNavMesh();
+
+		auto startTime{ std::chrono::high_resolution_clock::now() };
+
+		if (m_DirtyAreas.empty())
+		{
+			GenerateNavMesh();
+		}
+		else
+		{
+			GenerateNavMeshLocally(m_DirtyAreas);
+			m_DirtyAreas.clear();
+		}
+
+		float dt{ std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - startTime).count() };
+		std::cout << "Time to Generate NavMesh: " << dt << "\n";
 	}
 }
 
@@ -68,7 +82,8 @@ std::vector<glm::vec3> NavMesh::GeneratePath(glm::vec3 startPoint, glm::vec3 end
 	}
 	if (currentIteration >= maxIterations) endVoxel = nullptr;
 	
-	auto path{ m_PathFinder->GetPath(m_VoxelNodes, m_PathFinder->GetVoxelNodeFromVoxel(m_VoxelNodes, startVoxel), m_PathFinder->GetVoxelNodeFromVoxel(m_VoxelNodes, endVoxel))};
+	//auto path{ m_PathFinder->GetPath(m_VoxelNodes, m_PathFinder->GetVoxelNodeFromVoxel(m_VoxelNodes, startVoxel), m_PathFinder->GetVoxelNodeFromVoxel(m_VoxelNodes, endVoxel))};
+	auto path{ m_PathFinder->GetPath(m_NavMeshGenerator->GetVoxelNodes(), m_PathFinder->GetVoxelNodeFromVoxel(m_NavMeshGenerator->GetVoxelNodes(), startVoxel), m_PathFinder->GetVoxelNodeFromVoxel(m_NavMeshGenerator->GetVoxelNodes(), endVoxel))};
 	FillVerticesAndIndices(path);
 
 	std::vector<glm::vec3> vec3Path{};
@@ -129,6 +144,12 @@ void NavMesh::GenerateNavMesh()
 	NotifyObservers(GameEvents::NavMeshChanged);
 }
 
+void NavMesh::GenerateNavMeshLocally(std::vector<AABB> areas)
+{
+	m_VoxelNodes = m_NavMeshGenerator->GenerateNavMeshLocally(m_DirtyAreas);
+	NotifyObservers(GameEvents::NavMeshChanged);
+}
+
 void NavMesh::GenerateNavMeshesTest(int amount)
 {
 	std::vector<float> times{};
@@ -154,6 +175,17 @@ void NavMesh::GenerateNavMeshesTest(int amount)
 	float average{ total / static_cast<float>(times.size()) };
 
 	std::cout << "Average Time for NavMesh generation: " << average << "\n";
+}
+
+void NavMesh::SetNavMeshDirty(const AABB& area)
+{
+	m_IsNavMeshDirty = true;
+	m_DirtyAreas.emplace_back(area);
+}
+
+void NavMesh::SetNavMeshDirty()
+{
+	m_IsNavMeshDirty = true;
 }
 
 void NavMesh::FillVerticesAndIndices(std::vector<const NavMeshStructs::Voxel*> path)

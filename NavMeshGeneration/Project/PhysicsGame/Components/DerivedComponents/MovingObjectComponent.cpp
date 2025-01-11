@@ -1,10 +1,13 @@
 #include "MovingObjectComponent.h"
 #include "VulkanBase/Time/Time.h"
 #include "AI/NavMesh/NavMesh.h"
+#include "CollisionComponent.h"
 
 void MovingObjectComponent::GameStart()
 {
 	m_CurrentLifeTime = 0.f;
+	m_CollisionComp = GetOwner()->GetComponent<CollisionComponent>().get();
+	m_LastNavMeshUpdateAreas = m_CollisionComp->GetAABBs();
 }
 void MovingObjectComponent::Update(GLFWwindow* window)
 {
@@ -17,7 +20,24 @@ void MovingObjectComponent::Update(GLFWwindow* window)
 	{
 		if (m_UpdateNavmeshEveryFrame && m_NavMesh)
 		{
-			m_NavMesh->SetNavMeshDirty();
+			if (m_UpdateNavmeshLocally)
+			{
+				std::vector<AABB> currentAABB{ m_CollisionComp->GetAABBs() };
+
+				if (currentAABB.size() == m_LastNavMeshUpdateAreas.size())
+				{
+					for (int index{}; index < currentAABB.size(); ++index)
+					{
+						m_NavMesh->SetNavMeshDirty(currentAABB[index].Merge(m_LastNavMeshUpdateAreas[index]));
+					}
+				}
+
+				m_LastNavMeshUpdateAreas = currentAABB;
+			}
+			else
+			{
+				m_NavMesh->SetNavMeshDirty();
+			}
 		}
 
 		if (m_CurrentLifeTime >= m_TriggerDuration)
@@ -27,7 +47,24 @@ void MovingObjectComponent::Update(GLFWwindow* window)
 
 			if (m_UpdateNavmeshOnMovementCompleted && m_NavMesh)
 			{
-				m_NavMesh->SetNavMeshDirty();
+				if (m_UpdateNavmeshLocally)
+				{
+					std::vector<AABB> currentAABB{ m_CollisionComp->GetAABBs() };
+
+					if (currentAABB.size() == m_LastNavMeshUpdateAreas.size())
+					{
+						for (int index{}; index < currentAABB.size(); ++index)
+						{
+							m_NavMesh->SetNavMeshDirty(currentAABB[index].Merge(m_LastNavMeshUpdateAreas[index]));
+						}
+					}
+
+					m_LastNavMeshUpdateAreas = currentAABB;
+				}
+				else
+				{
+					m_NavMesh->SetNavMeshDirty();
+				}
 			}
 		}
 		else

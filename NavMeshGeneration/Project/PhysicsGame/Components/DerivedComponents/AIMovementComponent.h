@@ -43,4 +43,6 @@ private:
 	void HandleGravity();
 	void CalculateIsOnGround();
 
+	int m_FrameCount{};
+	float m_LifeTime{};
 };

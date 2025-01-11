@@ -11,6 +11,7 @@ public:
 	virtual void Update(GLFWwindow* window) override;
 
 	void GenerateNavMesh();
+	void GenerateNavMeshLocally(std::vector<AABB> areas);
 	void GenerateNavMeshesTest(int amount);
 
 	std::vector<glm::vec3> GeneratePath(glm::vec3 startPoint, glm::vec3 endPoint);
@@ -35,7 +36,8 @@ public:
 	void SetMaterial(Material* material) { m_Material = material; }
 	Material* GetMaterial() const override { return m_Material; }
 
-	void SetNavMeshDirty() { m_IsNavMeshDirty = true; }
+	void SetNavMeshDirty(const AABB& area);
+	void SetNavMeshDirty();
 
 private:
 
@@ -45,6 +47,7 @@ private:
 	std::vector<NavMeshStructs::VoxelNode> m_VoxelNodes{};
 
 	bool m_IsNavMeshDirty{ false };
+	std::vector<AABB> m_DirtyAreas{};
 
 	// Rendering
 

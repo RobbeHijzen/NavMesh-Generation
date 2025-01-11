@@ -313,7 +313,7 @@ void VulkanBase::LoadScene()
 	}
 
 	auto col{ std::make_shared<CollisionComponent>(tile, true, 0) };
-	col->SetAABBs({ AABB{{-750.f, 0, -950.f}, {700.f, 0, 1000.f}} });
+	col->SetAABBs({ AABB{{-750.f, 0, -950.f}, {670.f, 0, 1000.f}} });
 	tile->AddComponent(col);
 	m_Scene->AddObject(tile);
 

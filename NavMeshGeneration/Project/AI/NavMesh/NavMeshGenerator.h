@@ -10,6 +10,7 @@ public:
 	NavMeshGenerator(Scene* scene);
 
 	std::vector<NavMeshStructs::VoxelNode> GenerateNavMesh();
+	std::vector<NavMeshStructs::VoxelNode> GenerateNavMeshLocally(std::vector<AABB> areas);
 	const NavMeshStructs::Voxel* GetVoxelFromPosition(glm::vec3 position) const;
 
 	void SetMaterial(Material* material) { m_Material = material; }
@@ -24,9 +25,9 @@ public:
 private:
 
 	AABB m_Boundaries{ {-1500.f, -400.f, -1500.f}, {1500.f, 400.f, 1500.f} };
-	int m_VoxelsAmountX{75};
+	int m_VoxelsAmountX{100};
 	int m_VoxelsAmountY{51};
-	int m_VoxelsAmountZ{75};
+	int m_VoxelsAmountZ{100};
 	
 	std::vector<NavMeshStructs::Voxel> m_Voxels{};
 
@@ -37,6 +38,7 @@ private:
 
 	void InitializeVoxels();
 	void CheckForVoxelCollisions();
+	void CheckForVoxelCollisions(const AABB& area);
 	void FillHeightMap();
 	void FillWalkableVoxels();
 
@@ -44,6 +46,8 @@ private:
 
 	void CreateVoxelNodes();
 	std::vector<const NavMeshStructs::Voxel*> GetNeighborsFromVoxelIndex(int index);
+	std::vector<NavMeshStructs::Voxel*> GetVoxelsFromArea(const AABB& area);
+	glm::i32vec3 GetVoxelXYZFromPosition(glm::vec3 position) const;
 
 	glm::i32vec3 GetXYZFromIndex(int index) const;
 	int GetIndexFromXYZ(int x, int y, int z) const;
@@ -70,7 +74,7 @@ private:
 	virtual void Render(VkCommandBuffer buffer) const override { vkCmdDrawIndexed(buffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0); }
 
 	virtual PipelinesEnum GetPipelineID() const override { return PipelinesEnum::opacity; }
-	virtual bool IsHidden() const override { return true; }
+	virtual bool IsHidden() const override { return false; }
 
 	Material* m_Material{};
 

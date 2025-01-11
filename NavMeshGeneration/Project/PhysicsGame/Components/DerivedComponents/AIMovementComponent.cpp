@@ -16,6 +16,9 @@ void AIMovementComponent::Update(GLFWwindow* window)
 
 	float angle{ glm::atan(m_Velocity.z, -m_Velocity.x) + (PI / 2.f)};
 	GetOwner()->SetRotation({ 0.f, angle, 0.f });
+
+	++m_FrameCount;
+	m_LifeTime += Time::GetInstance()->GetDeltaTime();
 }
 
 void AIMovementComponent::SetFollowPath(const std::vector<glm::vec3>& path)
@@ -37,6 +40,7 @@ void AIMovementComponent::AIMoveTo(glm::vec3 pos)
 	if (m_CurrentMoveToPath.size() == 0)
 	{
 		m_IsFollowingAIPath = false;
+		m_Velocity = {};
 		return;
 	}
 
@@ -63,6 +67,10 @@ void AIMovementComponent::HandleAIMovement()
 			{
 				m_IsFollowingAIPath = false;
 				m_Velocity = {};
+
+				std::cout << "Total Time: " << m_LifeTime << "\n";
+				std::cout << "Average FPS: " << m_FrameCount / m_LifeTime << "\n";
+
 				return;
 			}
 
@@ -77,7 +85,11 @@ void AIMovementComponent::HandleAIMovement()
 				if (m_CurrentFollowPathIndex >= m_CurrentFollowPath.size())
 				{
 					m_IsFollowingAIPath = false;
-					m_Velocity = {};					
+					m_Velocity = {};
+
+					std::cout << "Total Time: " << m_LifeTime << "\n";
+					std::cout << "Average FPS: " << m_FrameCount / m_LifeTime << "\n";
+
 					return;
 				}
 				AIMoveTo(m_CurrentFollowPath[m_CurrentFollowPathIndex]);

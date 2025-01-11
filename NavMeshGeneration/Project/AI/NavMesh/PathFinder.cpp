@@ -7,7 +7,10 @@ using namespace PathFindingStructs;
 
 std::vector<const NavMeshStructs::Voxel*> PathFinder::GetPath(const std::vector<VoxelNode>& graph, const VoxelNode* startVoxel, const VoxelNode* endVoxel)
 {
-    if (!startVoxel || !endVoxel) return {};
+    if (!startVoxel || !endVoxel)
+    {
+        return {};
+    }
 
 	std::vector<const Voxel*> result{};
     
@@ -32,6 +35,8 @@ std::vector<const NavMeshStructs::Voxel*> PathFinder::GetPath(const std::vector<
         // Explore neighbors
         for (auto neighbor : currentNodeRecord.voxelNode->neighbors) 
 		{
+            if (neighbor->type != VoxelTypes::Walkable) continue;
+
             float totalGCost = currentNodeRecord.costSoFar + GetCost(currentNodeRecord.voxelNode, neighbor);
 
             auto closedIter = closedList.find(GetVoxelNodeFromVoxel(graph, neighbor));
@@ -40,9 +45,12 @@ std::vector<const NavMeshStructs::Voxel*> PathFinder::GetPath(const std::vector<
                 continue;
             }
 
+            auto voxelNode{ GetVoxelNodeFromVoxel(graph, neighbor) };
+            if (!voxelNode) continue;
+
             NodeRecord newNodeRecord
 			{
-                GetVoxelNodeFromVoxel(graph, neighbor),
+                voxelNode,
                 {currentNodeRecord.voxelNode->voxel, neighbor},
                 totalGCost,
                 totalGCost + GetCost(endVoxel, neighbor)
